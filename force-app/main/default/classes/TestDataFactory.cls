@@ -1,3 +1,4 @@
+@IsTest
 public with sharing class TestDataFactory {
 
     public Integer accountsNr = 5;
