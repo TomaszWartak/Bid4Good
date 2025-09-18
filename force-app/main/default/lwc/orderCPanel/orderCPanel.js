@@ -6,8 +6,16 @@ export default class OrderExplorer extends LightningElement {
   selectedAccountId;
   @wire(getAccountWithOrdersPicklistValues)
   wiredAccounts({ data, error }) {
-    if (data) this.accountsPicklistValues = data;
-    if (error) console.error(error);
+    if (data) {
+      this.accountsPicklistValues = data;
+      console.log(
+        "Accounts from Apex:",
+        JSON.stringify(this.accountsPicklistValues)
+      );
+    }
+    if (error) {
+      console.error(error);
+    }
   }
   handleAccountChange(event) {
     this.selectedAccountId = event.detail.value;
