@@ -4,6 +4,7 @@ import getAccountWithOrdersPicklistValues from "@salesforce/apex/OrderCControlle
 export default class OrderExplorer extends LightningElement {
   @track accountsPicklistValues = []; // [{label, value}]
   selectedAccountId;
+
   @wire(getAccountWithOrdersPicklistValues)
   wiredAccounts({ data, error }) {
     if (data) {
@@ -17,7 +18,12 @@ export default class OrderExplorer extends LightningElement {
       console.error(error);
     }
   }
+
   handleAccountChange(event) {
     this.selectedAccountId = event.detail.value;
+  }
+
+  get isEmpty() {
+    return this.accountsPicklistValues.length === 0;
   }
 }

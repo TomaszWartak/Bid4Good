@@ -10,6 +10,12 @@
         onchange={handleAccountChange}
       >
       </lightning-combobox>
+      <!-- No Accounts with Orders -->
+      <template if:true={isEmpty}>
+        <p class="slds-text-color_error slds-m-top_small">
+          No Accounts with Orders!
+        </p>
+      </template>
     </div>
   </lightning-card>
 </template>
