@@ -11,6 +11,7 @@ export default class OrderExplorer extends LightningElement {
     this.isLoading = false;
     if (data) {
       this.accountsPicklistValues = data;
+      this.isEmpty = this.accountsPicklistValues.length === 0;
       console.log(
         "Accounts from Apex:",
         JSON.stringify(this.accountsPicklistValues)
@@ -26,6 +27,9 @@ export default class OrderExplorer extends LightningElement {
   }
 
   get isEmpty() {
-    return this.accountsPicklistValues.length === 0;
+    return (
+      !this.isLoading &&
+      (!this.accountsPicklistValues || this.accountsPicklistValues.length === 0)
+    );
   }
 }
