@@ -26,6 +26,12 @@ export default class OrderExplorer extends LightningElement {
     this.selectedAccountId = event.detail.value;
   }
 
+  get hasAccounts() {
+    return (
+      this.accountsPicklistValues && this.accountsPicklistValues.length > 0
+    );
+  }
+
   get isEmpty() {
     return (
       !this.isLoading &&

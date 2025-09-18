@@ -1,22 +1,24 @@
 <template>
   <lightning-card title="Account Picker" icon-name="standard:account">
-    <!-- SPINNER while loading -->
-    <template if:true={isLoading}>
-      <lightning-spinner
-        alternative-text="Loading data..."
-        size="medium"
-      ></lightning-spinner>
-    </template>
     <div class="slds-p-around_medium">
+      <!-- SPINNER while loading -->
+      <template if:true={isLoading}>
+        <lightning-spinner
+          alternative-text="Loading data..."
+          size="medium"
+        ></lightning-spinner>
+      </template>
       <!-- Account Picker -->
-      <lightning-combobox
-        name="account"
-        label="Account"
-        placeholder="Select Account"
-        options={accountsPicklistValues}
-        value={selectedAccountId}
-        onchange={handleAccountChange}
-      ></lightning-combobox>
+      <template if:true={hasAccounts}>
+        <lightning-combobox
+          name="account"
+          label="Account"
+          placeholder="Select Account"
+          options={accountsPicklistValues}
+          value={selectedAccountId}
+          onchange={handleAccountChange}
+        ></lightning-combobox>
+      </template>
       <!-- No Accounts with Orders -->
       <template if:true={isEmpty}>
         <p class="slds-text-color_error slds-m-top_small">
