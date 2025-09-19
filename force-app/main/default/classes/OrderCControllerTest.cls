@@ -1,18 +1,6 @@
 @isTest
 private class OrderCControllerTest {
   @isTest
-  static void getMonthName_shouldReturnCorrectMonthName() {
-    System.assertEquals('January', OrderCController.getMonthName(1));
-    System.assertEquals('December', OrderCController.getMonthName(12));
-  }
-
-  @isTest
-  static void getMonthName_shouldReturnEmptyStringForInvalidMonth() {
-    System.assertEquals('', OrderCController.getMonthName(0)); // poza zakresem
-    System.assertEquals('', OrderCController.getMonthName(13)); // poza zakresem
-  }
-
-  @isTest
   static void createMonthPicklistValues_shouldReturnCorrectValues() {
     List<Order__c> testOrders = new List<Order__c>{
       new Order__c(Payment_Due_Date__c = Date.newInstance(2023, 1, 15)),

@@ -48,32 +48,10 @@ public with sharing class OrderCController {
 
     List<PicklistValue> pickListValues = new List<PicklistValue>();
     for (Integer month : months) {
-      String monthLabel = getMonthName(month);
+      String monthLabel = DateUtils.getMonthName(month);
       String monthValue = String.valueOf(month);
       pickListValues.add(new PicklistValue(monthLabel, monthValue));
     }
     return pickListValues;
-  }
-
-  @testVisible
-  private static String getMonthName(Integer month) {
-    List<String> monthNames = new List<String>{
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    };
-    if (month >= 1 && month <= 12) {
-      return monthNames[month - 1];
-    }
-    return '';
   }
 }
