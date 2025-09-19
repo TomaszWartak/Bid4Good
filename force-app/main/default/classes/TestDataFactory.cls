@@ -8,6 +8,7 @@ public with sharing class TestDataFactory {
     1,
     13
   };
+  public static Integer[] fixedMonths = new List<Integer>{ 1, 2, 4, 8, 9 };
 
   public static List<Account> createAccountsWithOrders() {
     List<Account> accs = createAccounts(accountsNr);
@@ -19,10 +20,15 @@ public with sharing class TestDataFactory {
   private static List<Account> createAccounts(Integer howMany) {
     List<Account> accs = new List<Account>();
     for (Integer accNr = 1; accNr <= howMany; accNr++) {
-      accs.add(new Account(Name = 'Test Account ' + accNr));
+      accs.add(new Account(Name = createAccountName(accNr)));
     }
     insert accs;
     return accs;
+  }
+
+  @testVisible
+  private static String createAccountName(Integer accNr) {
+    return 'Test Account ' + accNr;
   }
 
   private static List<Order__c> createOrders(
@@ -34,13 +40,21 @@ public with sharing class TestDataFactory {
       Account acc = accs[accNr];
       Integer howManyOrders = ordersPerAccount[accNr];
       for (Integer ordNr = 1; ordNr <= howManyOrders; ordNr++) {
-        String orderName = 'Test Order ' + ordNr + ' for Account ' + acc.Name;
+        String orderName = createOrderNameForAccount(ordNr, acc.Name);
         Double totalAmount = Math.round(Math.random() * 10000) / 100.0;
         ords.add(prepareOrder(acc, orderName, totalAmount));
       }
     }
     insert ords;
     return ords;
+  }
+
+  @testVisible
+  private static String createOrderNameForAccount(
+    Integer ordNr,
+    String accName
+  ) {
+    return 'Test Order ' + ordNr + ' for Account ' + accName;
   }
 
   private static Order__c prepareOrder(
@@ -52,7 +66,7 @@ public with sharing class TestDataFactory {
       Account__c = acc.Id,
       Name = orderName,
       Total_Amount__c = totalAmount,
-      Payment_Due_Date__c = Date.today().addDays(30)
+      Payment_Due_Date__c = TestDateHelper.getFixedMonthTestDate(fixedMonths)
     );
     return ord;
   }
