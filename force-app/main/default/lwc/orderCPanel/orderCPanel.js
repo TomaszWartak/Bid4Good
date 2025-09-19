@@ -1,6 +1,6 @@
 import { LightningElement, track, wire } from "lwc";
 import getAccountsWithOrdersPicklistValues from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues";
-import getPaymentDueDateMonthsPicklistValues from "@salesforce/apex/OrderCController.getPaymentDueDateMonthsPicklistValues";
+import getPaymentDueDateMonthsForAccountPicklistValues from "@salesforce/apex/OrderCController.getPaymentDueDateMonthsForAccountPicklistValues";
 
 export default class OrderExplorer extends LightningElement {
   @track accountsPicklistValues = [];
@@ -25,6 +25,7 @@ export default class OrderExplorer extends LightningElement {
 
   handleAccountChange(event) {
     this.selectedAccountId = event.detail.value;
+    this.loadMonthsDueDate();
   }
 
   get isAccountListEmpty() {
@@ -41,23 +42,23 @@ export default class OrderExplorer extends LightningElement {
   @track monthsDueDatePicklistValues = [];
   selectedMonth;
 
-  // Months due date handling
-  @wire(getPaymentDueDateMonthsPicklistValues)
-  wiredMonthsDueDate({ data, error }) {
-    if (data) {
-      this.monthsDueDatePicklistValues = data;
-      // Set default value to the first option if available
-      if (data.length > 0) {
-        this.selectedMonth = data[0].value;
-      }
-      // TODO: console log - usunac pozniej
-      console.log(
-        "Months from Apex:",
-        JSON.stringify(this.monthsDueDatePicklistValues)
-      );
-    }
-    if (error) {
-      console.error(error);
+  loadMonthsDueDate() {
+    this.monthsDueDatePicklistValues = [];
+    this.selectedMonth = null;
+    if (this.selectedAccountId) {
+      getPaymentDueDateMonthsForAccountPicklistValues({
+        accountId: this.selectedAccountId
+      })
+        .then((data) => {
+          this.monthsDueDatePicklistValues = data;
+          if (data.length > 0) {
+            this.selectedMonth = data[0].value;
+          }
+          console.log("Months from Apex:", JSON.stringify(data));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }
 

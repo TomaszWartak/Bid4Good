@@ -25,11 +25,13 @@ public with sharing class OrderCController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static List<PicklistValue> getPaymentDueDateMonthsPicklistValues() {
+  public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues(
+    Id accountId
+  ) {
     List<Order__c> orders = [
       SELECT Payment_Due_Date__c
       FROM Order__c
-      WHERE Payment_Due_Date__c != NULL
+      WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
     ];
 
     return createMonthPicklistValues(orders);

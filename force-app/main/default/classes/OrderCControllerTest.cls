@@ -34,43 +34,17 @@ private class OrderCControllerTest {
 
   @isTest
   static void getPaymentDueDateMonthsPicklistValues_shouldReturnCorrectValues() {
-    TestDataFactory.createAccountsWithOrders();
+    List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
 
     Test.startTest();
-    List<OrderCController.PicklistValue> results = OrderCController.getPaymentDueDateMonthsPicklistValues();
+    List<OrderCController.PicklistValue> results = OrderCController.getPaymentDueDateMonthsForAccountPicklistValues(
+      testAccounts[3].Id
+    );
     Test.stopTest();
 
-    System.assertEquals(
-      TestDataFactory.fixedMonths.size(),
-      results.size(),
-      'Should return ' + TestDataFactory.fixedMonths.size() + ' unique months'
-    );
+    System.assertEquals(1, results.size(), 'Should return 1 unique month');
 
-    System.assertEquals(
-      DateUtils.getMonthName(TestDataFactory.fixedMonths[0]),
-      results[0].label
-    );
-    System.assertEquals(
-      TestDataFactory.fixedMonths[0].toString(),
-      results[0].value
-    );
-
-    System.assertEquals(
-      DateUtils.getMonthName(TestDataFactory.fixedMonths[1]),
-      results[1].label
-    );
-    System.assertEquals(
-      TestDataFactory.fixedMonths[1].toString(),
-      results[1].value
-    );
-
-    System.assertEquals(
-      DateUtils.getMonthName(TestDataFactory.fixedMonths[4]),
-      results[4].label
-    );
-    System.assertEquals(
-      TestDataFactory.fixedMonths[4].toString(),
-      results[4].value
-    );
+    System.assertEquals('February', results[0].label);
+    System.assertEquals('2', results[0].value);
   }
 }
