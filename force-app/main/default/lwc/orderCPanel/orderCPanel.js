@@ -1,12 +1,12 @@
 import { LightningElement, track, wire } from "lwc";
-import getAccountWithOrdersPicklistValues from "@salesforce/apex/OrderCController.getAccountWithOrdersPicklistValues";
+import getAccountsWithOrdersPicklistValues from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues";
 
 export default class OrderExplorer extends LightningElement {
   @track accountsPicklistValues = [];
   selectedAccountId;
   isLoading = true;
 
-  @wire(getAccountWithOrdersPicklistValues)
+  @wire(getAccountsWithOrdersPicklistValues)
   wiredAccounts({ data, error }) {
     if (data) {
       this.accountsPicklistValues = data;

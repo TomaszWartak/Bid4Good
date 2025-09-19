@@ -1,6 +1,4 @@
 public with sharing class OrderCController {
-  public static final String ACCOUNT_NAME = 'Account Name';
-
   public class PicklistValue {
     @AuraEnabled
     public String label;
@@ -13,7 +11,7 @@ public with sharing class OrderCController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static List<PicklistValue> getAccountWithOrdersPicklistValues() {
+  public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
     List<PicklistValue> pickListValues = new List<PicklistValue>();
     for (Account acc : [
       SELECT Name
@@ -26,7 +24,6 @@ public with sharing class OrderCController {
     return pickListValues;
   }
 
-  // Lista miesięcy (label i value) gdzie wypada płatność do picklisty
   @AuraEnabled(cacheable=true)
   public static List<PicklistValue> getPaymentDueDateMonthsPicklistValues() {
     List<Order__c> orders = [
@@ -35,13 +32,20 @@ public with sharing class OrderCController {
       WHERE Payment_Due_Date__c != NULL
     ];
 
+    return createMonthPicklistValues(orders);
+  }
+
+  @testVisible
+  private static List<PicklistValue> createMonthPicklistValues(
+    List<Order__c> orders
+  ) {
     Set<Integer> months = new Set<Integer>();
     for (Order__c ord : orders) {
       if (ord.Payment_Due_Date__c != null) {
         months.add(ord.Payment_Due_Date__c.month());
       }
     }
-    // utworzenie listy PicklistValue z nazwami miesięcy
+
     List<PicklistValue> pickListValues = new List<PicklistValue>();
     for (Integer month : months) {
       String monthLabel = getMonthName(month);
@@ -51,6 +55,7 @@ public with sharing class OrderCController {
     return pickListValues;
   }
 
+  @testVisible
   private static String getMonthName(Integer month) {
     List<String> monthNames = new List<String>{
       'January',
