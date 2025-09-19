@@ -2,14 +2,14 @@
   <lightning-card title="Account Picker" icon-name="standard:account">
     <div class="slds-p-around_medium">
       <!-- SPINNER while loading -->
-      <template if:true={isLoading}>
+      <template if:true={isAccountPicklistLoading}>
         <lightning-spinner
           alternative-text="Loading data..."
           size="medium"
         ></lightning-spinner>
       </template>
       <!-- Account Picker -->
-      <template if:true={isNotEmpty}>
+      <template if:true={isAccountListNotEmpty}>
         <lightning-combobox
           name="account"
           label="Account"
@@ -19,8 +19,19 @@
           onchange={handleAccountChange}
         ></lightning-combobox>
       </template>
+      <!-- Months due date picker -->
+      <template if:true={isAccountListNotEmpty}>
+        <lightning-combobox
+          name="monthsDueDate"
+          label="Months Due Date"
+          placeholder="Select Months Due Date"
+          options={monthsDueDatePicklistValues}
+          value={selectedMonth}
+          onchange={handleMonthsDueDateChange}
+        ></lightning-combobox>
+      </template>
       <!-- No Accounts with Orders -->
-      <template if:true={isEmpty}>
+      <template if:true={isAccountListEmpty}>
         <p class="slds-text-color_error slds-m-top_small">
           No Accounts with Orders!
         </p>
