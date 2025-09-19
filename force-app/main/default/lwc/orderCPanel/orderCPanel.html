@@ -9,7 +9,7 @@
         ></lightning-spinner>
       </template>
       <!-- Account Picker -->
-      <template if:true={hasAccounts}>
+      <template if:true={isNotEmpty}>
         <lightning-combobox
           name="account"
           label="Account"

@@ -8,10 +8,10 @@ export default class OrderExplorer extends LightningElement {
 
   @wire(getAccountWithOrdersPicklistValues)
   wiredAccounts({ data, error }) {
-    this.isLoading = false;
     if (data) {
       this.accountsPicklistValues = data;
-      this.isEmpty = this.accountsPicklistValues.length === 0;
+      this.isLoading = false;
+      // TODO: console log - usunac pozniej
       console.log(
         "Accounts from Apex:",
         JSON.stringify(this.accountsPicklistValues)
@@ -26,16 +26,20 @@ export default class OrderExplorer extends LightningElement {
     this.selectedAccountId = event.detail.value;
   }
 
-  get hasAccounts() {
-    return (
-      this.accountsPicklistValues && this.accountsPicklistValues.length > 0
-    );
-  }
+  //   get hasAccounts() {
+  //     return (
+  //       this.accountsPicklistValues && this.accountsPicklistValues.length > 0
+  //     );
+  //   }
 
   get isEmpty() {
     return (
       !this.isLoading &&
       (!this.accountsPicklistValues || this.accountsPicklistValues.length === 0)
     );
+  }
+
+  get isNotEmpty() {
+    return !this.isEmpty;
   }
 }
