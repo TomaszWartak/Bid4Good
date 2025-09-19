@@ -14,6 +14,12 @@ public with sharing class TestDataFactory {
     List<Account> accs = createAccounts(accountsNr);
     // TODO - co z rezultatme createOrders()
     List<Order__c> ords = createOrders(accs, ordersPerAccount);
+    accs = [
+      SELECT Name, Total_Orders_Number__c
+      FROM Account
+      WHERE Id IN :accs
+      ORDER BY Name
+    ];
     return accs;
   }
 
