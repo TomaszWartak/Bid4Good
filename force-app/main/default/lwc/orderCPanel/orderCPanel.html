@@ -1,5 +1,5 @@
 <template>
-  <lightning-card title="Account Picker" icon-name="standard:account">
+  <lightning-card title="Order Panel" icon-name="standard:order">
     <div class="slds-p-around_medium">
       <!-- SPINNER while loading -->
       <template if:true={isAccountPicklistLoading}>
@@ -29,6 +29,14 @@
           value={selectedMonth}
           onchange={handleMonthsDueDateChange}
         ></lightning-combobox>
+      </template>
+      <!-- Orders List -->
+      <template if:true={isOrdersListNotEmpty}>
+        <template for:each={orders} for:item="order">
+          <p key={order.Id} class="slds-m-top_small">
+            {order.Name} - {order.Payment_Due_Date__c}
+          </p>
+        </template>
       </template>
       <!-- No Accounts with Orders -->
       <template if:true={isAccountListEmpty}>

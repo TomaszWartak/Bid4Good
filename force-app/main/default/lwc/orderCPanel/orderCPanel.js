@@ -1,6 +1,7 @@
 import { LightningElement, track, wire } from "lwc";
 import getAccountsWithOrdersPicklistValues from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues";
 import getPaymentDueDateMonthsForAccountPicklistValues from "@salesforce/apex/OrderCController.getPaymentDueDateMonthsForAccountPicklistValues";
+import getOrdersForAccountAndDueDateMonth from "@salesforce/apex/OrderCController.getOrdersForAccountAndDueDateMonth";
 
 export default class OrderExplorer extends LightningElement {
   @track accountsPicklistValues = [];
@@ -24,6 +25,8 @@ export default class OrderExplorer extends LightningElement {
   }
 
   handleAccountChange(event) {
+    // TODO: console log - usunac pozniej
+    console.log("handleAccountChange()");
     this.selectedAccountId = event.detail.value;
     this.loadMonthsDueDate();
   }
@@ -44,7 +47,9 @@ export default class OrderExplorer extends LightningElement {
 
   loadMonthsDueDate() {
     this.monthsDueDatePicklistValues = [];
-    this.selectedMonth = null;
+    this.monthOfDueDate = null;
+    // TODO: console log - usunac pozniej
+    console.log("loadMonthsDueDate entry");
     if (this.selectedAccountId) {
       getPaymentDueDateMonthsForAccountPicklistValues({
         accountId: this.selectedAccountId
@@ -52,7 +57,7 @@ export default class OrderExplorer extends LightningElement {
         .then((data) => {
           this.monthsDueDatePicklistValues = data;
           if (data.length > 0) {
-            this.selectedMonth = data[0].value;
+            this.monthOfDueDate = data[0].value;
           }
           console.log("Months from Apex:", JSON.stringify(data));
         })
@@ -63,6 +68,56 @@ export default class OrderExplorer extends LightningElement {
   }
 
   handleMonthsDueDateChange(event) {
-    this.monthsDueDate = event.target.value;
+    // TODO
+    console.log("handleMonthsDueDateChange()");
+    this.monthOfDueDate = event.target.value;
+    this.loadOrders();
+  }
+
+  get isMonthsDueDateListNotEmpty() {
+    return (
+      this.monthsDueDatePicklistValues &&
+      this.monthsDueDatePicklistValues.length > 0
+    );
+  }
+
+  @track orders = [];
+  isOrdersLoading = false;
+
+  get isOrdersListNotEmpty() {
+    return !this.isOrdersLoading && this.orders && this.orders.length > 0;
+  }
+
+  // TODO
+  // get monthOfDueDate() {
+  //   return this.selectedMonth;
+  // }
+
+  set monthOfDueDate(value) {
+    this.selectedMonth = value;
+    this.loadOrders();
+  }
+
+  loadOrders() {
+    this.orders = [];
+    // TODO: console log - usunac pozniej
+    console.log("loadOrders entry");
+    if (this.selectedAccountId && this.selectedMonth) {
+      this.isOrdersLoading = true;
+      // Call Apex method to get orders for selected account and month
+      getOrdersForAccountAndDueDateMonth({
+        accountId: this.selectedAccountId,
+        dueDateMonth: parseInt(this.selectedMonth, 10)
+      })
+        .then((data) => {
+          this.orders = data;
+          this.isOrdersLoading = false;
+          console.log("Orders from Apex:", JSON.stringify(data));
+        })
+        .catch((error) => {
+          console.error(error);
+          this.isOrdersLoading = false;
+        });
+    }
   }
 }
