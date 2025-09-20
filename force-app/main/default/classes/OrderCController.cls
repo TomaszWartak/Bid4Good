@@ -56,4 +56,31 @@ public with sharing class OrderCController {
     }
     return pickListValues;
   }
+
+  @AuraEnabled(cacheable=true)
+  public static List<Order__c> getOrdersForAccountAndDueDateMonth(
+    Id accountId,
+    Integer dueDateMonth
+  ) {
+    List<Order__c> orders = new List<Order__c>();
+    if (accountId == null || dueDateMonth == null) {
+      return orders;
+    }
+
+    orders = [
+      SELECT Id, Name, Payment_Due_Date__c
+      FROM Order__c
+      WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
+    ];
+
+    List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
+
+    for (Order__c ord : orders) {
+      if (ord.Payment_Due_Date__c.month() == dueDateMonth) {
+        ordersWithDueDateMonth.add(ord);
+      }
+    }
+
+    return ordersWithDueDateMonth;
+  }
 }
