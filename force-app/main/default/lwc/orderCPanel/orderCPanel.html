@@ -4,7 +4,7 @@
       <!-- SPINNER while loading -->
       <template if:true={isAccountPicklistLoading}>
         <lightning-spinner
-          alternative-text="Loading data..."
+          alternative-text="Loading accounts data..."
           size="medium"
         ></lightning-spinner>
       </template>
@@ -32,11 +32,24 @@
       </template>
       <!-- Orders List -->
       <template if:true={isOrdersListNotEmpty}>
-        <template for:each={orders} for:item="order">
+        <!-- <template for:each={orders} for:item="order">
           <p key={order.Id} class="slds-m-top_small">
             {order.Name} - {order.Payment_Due_Date__c}
           </p>
-        </template>
+        </template> -->
+        <p
+          class="slds-text-body_small slds-m-top_x-small slds-m-bottom_x-small"
+        >
+          Orders with due date
+        </p>
+        <lightning-datatable
+          key-field="Name"
+          data={orders}
+          columns={ordersColumns}
+          hide-checkbox-column="true"
+          show-row-number-column="true"
+        >
+        </lightning-datatable>
       </template>
       <!-- No Accounts with Orders -->
       <template if:true={isAccountListEmpty}>

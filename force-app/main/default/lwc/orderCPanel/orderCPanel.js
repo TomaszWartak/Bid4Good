@@ -98,6 +98,20 @@ export default class OrderExplorer extends LightningElement {
     this.loadOrders();
   }
 
+  ordersColumns = [
+    {
+      label: "Order Name",
+      fieldName: "orderUrl",
+      type: "url",
+      typeAttributes: { label: { fieldName: "Name" }, target: "_blank" }
+    },
+    {
+      label: "Payment Due Date",
+      fieldName: "Payment_Due_Date__c",
+      type: "date"
+    }
+  ];
+
   loadOrders() {
     this.orders = [];
     // TODO: console log - usunac pozniej
@@ -110,7 +124,11 @@ export default class OrderExplorer extends LightningElement {
         dueDateMonth: parseInt(this.selectedMonth, 10)
       })
         .then((data) => {
-          this.orders = data;
+          // TODO this.orders = data;
+          this.orders = data.map((order) => ({
+            ...order,
+            orderUrl: `/lightning/r/Order__c/${order.Id}/view`
+          }));
           this.isOrdersLoading = false;
           console.log("Orders from Apex:", JSON.stringify(data));
         })
