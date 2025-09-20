@@ -48,7 +48,6 @@ private class OrderCControllerTest {
     System.assertEquals('2', results[0].value);
   }
 
-  // tests for getOrdersForAccountAndDueDateMonth
   @isTest
   static void getOrdersForAccountAndDueDateMonth_shouldReturnCorrectValues() {
     List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
@@ -77,5 +76,19 @@ private class OrderCControllerTest {
       results[1].Name
     );
     System.assertEquals(9, results[1].Payment_Due_Date__c.month());
+  }
+
+  @isTest
+  static void getOrdersForAccountAndDueDateMonth_shouldReturnEmptyList_forMonthWithoutDueDate() {
+    List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
+
+    Test.startTest();
+    List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
+      testAccounts[2].Id,
+      3
+    );
+    Test.stopTest();
+
+    System.assertEquals(0, results.size(), 'Should return 0 orders for March');
   }
 }
