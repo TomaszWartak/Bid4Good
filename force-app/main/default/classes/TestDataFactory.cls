@@ -55,8 +55,9 @@ public with sharing class TestDataFactory {
     return ords;
   }
 
-  @testVisible
-  private static String createOrderNameForAccount(
+  // TODO @testVisible
+  // private
+  public static String createOrderNameForAccount(
     Integer ordNr,
     String accName
   ) {

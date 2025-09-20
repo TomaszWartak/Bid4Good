@@ -47,4 +47,35 @@ private class OrderCControllerTest {
     System.assertEquals('February', results[0].label);
     System.assertEquals('2', results[0].value);
   }
+
+  // tests for getOrdersForAccountAndDueDateMonth
+  @isTest
+  static void getOrdersForAccountAndDueDateMonth_shouldReturnCorrectValues() {
+    List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
+
+    Test.startTest();
+    List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
+      testAccounts[2].Id,
+      9
+    );
+    Test.stopTest();
+
+    System.assertEquals(
+      2,
+      results.size(),
+      'Should return 2 orders for September'
+    );
+
+    System.assertEquals(
+      TestDataFactory.createOrderNameForAccount(1, testAccounts[2].Name),
+      results[0].Name
+    );
+    System.assertEquals(9, results[0].Payment_Due_Date__c.month());
+
+    System.assertEquals(
+      TestDataFactory.createOrderNameForAccount(6, testAccounts[2].Name),
+      results[1].Name
+    );
+    System.assertEquals(9, results[1].Payment_Due_Date__c.month());
+  }
 }
