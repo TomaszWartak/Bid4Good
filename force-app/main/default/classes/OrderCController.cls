@@ -11,6 +11,11 @@ public with sharing class OrderCController {
   }
 
   @AuraEnabled(cacheable=true)
+  public static List<PicklistValue> getAccountsWithOrdersPicklistValues_Cacheable() {
+    return getAccountsWithOrdersPicklistValues();
+  }
+
+  @AuraEnabled
   public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
     List<PicklistValue> pickListValues = new List<PicklistValue>();
     for (Account acc : [
@@ -25,6 +30,21 @@ public with sharing class OrderCController {
   }
 
   @AuraEnabled(cacheable=true)
+  public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
+    Id accountId
+  ) {
+    // TODO
+    //   List<Order__c> orders = [
+    //     SELECT Payment_Due_Date__c
+    //     FROM Order__c
+    //     WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
+    //   ];
+
+    //   return createMonthPicklistValues(orders);
+    return getPaymentDueDateMonthsForAccountPicklistValues(accountId);
+  }
+
+  @AuraEnabled
   public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues(
     Id accountId
   ) {
@@ -57,7 +77,7 @@ public with sharing class OrderCController {
     return pickListValues;
   }
 
-  @AuraEnabled(cacheable=true)
+  @AuraEnabled
   public static List<Order__c> getOrdersForAccountAndDueDateMonth(
     Id accountId,
     Integer dueDateMonth

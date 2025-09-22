@@ -1,58 +1,49 @@
 <template>
   <lightning-card title="Order Panel" icon-name="standard:order">
     <div class="slds-p-around_medium">
-      <!-- SPINNER while loading -->
-      <template if:true={isAccountPicklistLoading}>
+      <!-- SPINNER while loading Accounts -->
+      <template if:true={_isAccountPicklistLoading}>
         <lightning-spinner
           alternative-text="Loading accounts data..."
           size="medium"
         ></lightning-spinner>
       </template>
       <!-- Account Picker -->
-      <template if:true={isAccountListNotEmpty}>
+      <template if:true={_isAccountListNotEmpty}>
         <lightning-combobox
           name="account"
           label="Account"
           placeholder="Select Account"
-          options={accountsPicklistValues}
-          value={selectedAccountId}
-          onchange={handleAccountChange}
+          options={_accountsPicklistValues}
+          value={_selectedAccountId}
+          onchange={_handleAccountChange}
         ></lightning-combobox>
       </template>
       <!-- Months due date picker -->
-      <template if:true={isAccountListNotEmpty}>
+      <template if:true={_isMonthsDueDateListNotEmpty}>
         <lightning-combobox
           name="monthsDueDate"
           label="Months Due Date"
           placeholder="Select Months Due Date"
-          options={monthsDueDatePicklistValues}
-          value={selectedMonth}
-          onchange={handleMonthsDueDateChange}
+          options={_monthsDueDatePicklistValues}
+          value={_selectedMonth}
+          onchange={_handleMonthsDueDateChange}
         ></lightning-combobox>
       </template>
       <!-- Orders List -->
-      <template if:true={isOrdersListNotEmpty}>
-        <!-- <template for:each={orders} for:item="order">
-          <p key={order.Id} class="slds-m-top_small">
-            {order.Name} - {order.Payment_Due_Date__c}
-          </p>
-        </template> -->
-        <p
-          class="slds-text-body_small slds-m-top_x-small slds-m-bottom_x-small"
-        >
-          Orders with due date
-        </p>
-        <lightning-datatable
-          key-field="Name"
-          data={orders}
-          columns={ordersColumns}
-          hide-checkbox-column="true"
-          show-row-number-column="true"
-        >
-        </lightning-datatable>
-      </template>
+      <p class="slds-text-body_small slds-m-top_x-small slds-m-bottom_x-small">
+        Orders with due date
+      </p>
+      <lightning-datatable
+        key-field="Name"
+        data={_orders}
+        columns={_ordersColumns}
+        hide-checkbox-column="true"
+        show-row-number-column="true"
+      >
+      </lightning-datatable>
       <!-- No Accounts with Orders -->
-      <template if:true={isAccountListEmpty}>
+      <template if:true={_isAccountListEmpty}>
         <p class="slds-text-color_error slds-m-top_small">
           No Accounts with Orders!
         </p>
