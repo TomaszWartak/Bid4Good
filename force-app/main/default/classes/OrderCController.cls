@@ -84,7 +84,7 @@ public with sharing class OrderCController {
       SELECT Id, Name, Payment_Due_Date__c
       FROM Order__c
       WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
-      ORDER BY Payment_Due_Date__c DESC
+      ORDER BY Payment_Due_Date__c ASC
     ];
 
     List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
