@@ -51,7 +51,12 @@ export default class OrderExplorer extends LightningElement {
     {
       label: "Payment Due Date",
       fieldName: "Payment_Due_Date__c",
-      type: "date"
+      type: "date",
+      typeAttributes: {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }
     }
   ];
 
