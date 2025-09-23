@@ -1,17 +1,21 @@
 @IsTest
 public with sharing class TestDataFactory {
-  public static Integer accountsNr = 5;
-  public static Integer[] ordersPerAccount = new List<Integer>{
-    8,
-    11,
-    7,
-    1,
-    13
-  };
-  public static Integer[] fixedMonths = new List<Integer>{ 1, 2, 4, 8, 9 };
+  public final static Integer ACCOUNTS_NUMBER = 5;
+  public final static Integer ORDERS_PER_ACCOUNT = 8;
+  public static Integer[] ordersPerAccount = prepareEvenlyOrdersPerAccount();
+  
+  private static List<Integer> prepareEvenlyOrdersPerAccount() {
+    List<Integer> targetList = new List<Integer>();
+    for (Integer i = 0; i < ACCOUNTS_NUMBER; i++) {
+        targetList.add(ORDERS_PER_ACCOUNT);
+    }
+    return targetList;
+  }
 
+  public final static Integer[] FIXED_MONTHS = new List<Integer>{ 1, 2, 4, 8, 9 };
+  
   public static List<Account> createAccountsWithOrders() {
-    List<Account> accs = createAccounts(accountsNr);
+    List<Account> accs = createAccounts(ACCOUNTS_NUMBER);
     // TODO - co z rezultatme createOrders()
     List<Order__c> ords = createOrders(accs, ordersPerAccount);
     accs = [
@@ -73,8 +77,19 @@ public with sharing class TestDataFactory {
       Account__c = acc.Id,
       Name = orderName,
       Total_Amount__c = totalAmount,
-      Payment_Due_Date__c = TestDateHelper.getFixedMonthTestDate(fixedMonths)
+      Payment_Due_Date__c = TestDateHelper.getNextFixedMonthTestDate(FIXED_MONTHS)
     );
     return ord;
+  }
+
+  public static Integer getTestMonth(
+    Integer accountNr, 
+    Integer orderNr
+    ) {
+    return TestDateHelper.getTestMonth(
+      ORDERS_PER_ACCOUNT, 
+      FIXED_MONTHS, 
+      accountNr, 
+      orderNr);
   }
 }

@@ -7,9 +7,9 @@ private class OrderCTriggerTest {
     Test.stopTest();
 
     System.assertEquals(
-      TestDataFactory.accountsNr,
+      TestDataFactory.ACCOUNTS_NUMBER,
       newAccounts.size(),
-      'Should create ' + TestDataFactory.accountsNr + ' accounts'
+      'Should create ' + TestDataFactory.ACCOUNTS_NUMBER + ' accounts'
     );
 
     for (Integer i = 0; i < newAccounts.size(); i++) {
