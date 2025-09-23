@@ -81,7 +81,7 @@ public with sharing class OrderCController {
     }
 
     orders = [
-      SELECT Id, Name, Payment_Due_Date__c
+      SELECT Id, Name, Payment_Due_Date__c, Total_Amount__c
       FROM Order__c
       WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
       ORDER BY Payment_Due_Date__c ASC

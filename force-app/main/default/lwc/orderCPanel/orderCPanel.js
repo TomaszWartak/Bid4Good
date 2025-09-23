@@ -57,6 +57,12 @@ export default class OrderExplorer extends LightningElement {
         month: '2-digit',
         year: 'numeric'
       }
+    },
+    {
+      label: "Amount",
+      fieldName: "Total_Amount__c",
+      type: "currency",
+      typeAttributes: { currencyCode: 'USD' }
     }
   ];
 
