@@ -33,14 +33,6 @@ public with sharing class OrderCController {
   public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
     Id accountId
   ) {
-    // TODO
-    //   List<Order__c> orders = [
-    //     SELECT Payment_Due_Date__c
-    //     FROM Order__c
-    //     WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
-    //   ];
-
-    //   return createMonthPicklistValues(orders);
     return getPaymentDueDateMonthsForAccountPicklistValues(accountId);
   }
 
@@ -52,6 +44,7 @@ public with sharing class OrderCController {
       SELECT Payment_Due_Date__c
       FROM Order__c
       WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
+      ORDER BY Payment_Due_Date__c ASC
     ];
 
     return createMonthPicklistValues(orders);
@@ -91,6 +84,7 @@ public with sharing class OrderCController {
       SELECT Id, Name, Payment_Due_Date__c
       FROM Order__c
       WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
+      ORDER BY Payment_Due_Date__c DESC
     ];
 
     List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
@@ -104,3 +98,4 @@ public with sharing class OrderCController {
     return ordersWithDueDateMonth;
   }
 }
+
