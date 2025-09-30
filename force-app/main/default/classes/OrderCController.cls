@@ -2,8 +2,10 @@ public with sharing class OrderCController {
   public class PicklistValue {
     @AuraEnabled
     public String label;
+
     @AuraEnabled
     public String value;
+
     public PicklistValue(String l, String v) {
       label = l;
       value = v;
@@ -35,20 +37,18 @@ public with sharing class OrderCController {
       
     // **************************************************************
       if (!Schema.SObjectType.Account.fields.get('Total_Orders_Number__c').isAccessible()) {
-          // Zabezpieczenie: Jeśli brak dostępu, zwróć pustą listę lub zgłoś błąd.
-          // Zwracamy pustą listę, aby aplikacja nie wysypała się w LWC.
-          return new List<PicklistValue>();
+          // TODO Jakie wyjątki sa w Apex
+          throw new Exception();
       }
     // **************************************************************
       
       List<PicklistValue> pickListValues = new List<PicklistValue>();
       for (Account acc : [
-          SELECT Name, Total_Orders_Number__c // Odpytujemy również o to pole, choć Name jest kluczowe
+          SELECT Name, Total_Orders_Number__c
           FROM Account
           WHERE Total_Orders_Number__c > 0
           ORDER BY Name
       ]) {
-          // Kontynuacja logiki...
           pickListValues.add(new PicklistValue(acc.Name, String.valueOf(acc.Id)));
       }
       return pickListValues;
