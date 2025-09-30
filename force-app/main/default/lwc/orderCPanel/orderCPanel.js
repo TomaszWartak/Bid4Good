@@ -179,7 +179,8 @@ export default class OrderExplorer extends LightningElement {
         console.log("Orders from Apex:\n", JSON.stringify(this._orders));
       })
       .catch((error) => {
-        console.error(error);
+        console.error(error); 
+        // TODO show toast message (from LWC)
       })
       .finally(() => {
         this.areOrdersLoading = false;

@@ -15,6 +15,10 @@ public with sharing class OrderCTriggerHandler {
     List<Order__c> orders,
     System.TriggerOperation operationType
   ) {
+
+    // ONLY THROW EXCEPTION
+    // HOW TO MAKE VALIDATION IN TRIGGER (EXCEPTIONS OR TRIGGER's METHODS)
+
     // zrób mapę <idAccount, ilość zamówień dla idAccount> z newOrders
     Map<Id, Integer> newOrderCountsForAccounts = getNewOrderCountsForAccounts(
       orders
