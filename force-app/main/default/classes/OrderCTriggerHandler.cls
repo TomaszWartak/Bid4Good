@@ -1,4 +1,4 @@
-public with sharing class OrderCTriggerHandler {
+public without sharing class OrderCTriggerHandler {
     public static void handleAfterInsert(List<Order__c> newOrders) {
         ActualizeAccounts(newOrders, System.TriggerOperation.AFTER_INSERT);
     }
