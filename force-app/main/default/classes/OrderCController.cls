@@ -1,5 +1,5 @@
 public with sharing class OrderCController {
-    
+
     public class PicklistValue {
         @AuraEnabled
         public String label;
@@ -20,27 +20,28 @@ public with sharing class OrderCController {
 
     @AuraEnabled
     public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
-        
-        if (!Account.Total_Orders_Number__c.getDescribe().isAccessible() ) {
-            throw new AuraHandledException( Constants.INSUFFICIENT_PERMISSIONS );
-            // throw new Custom ??? InsufficientPermissionException
-        }
-        List<PicklistValue> pickListValues = new List<PicklistValue>();
-        try {
+        try { 
+            if (!Account.Total_Orders_Number__c.getDescribe().isAccessible() ) {
+                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
+            }
+
+            // TODO I need to check how many limits I have in a transaction
+            List<PicklistValue> pickListValues = new List<PicklistValue>();
             for (Account acc : [
                 SELECT Name, Total_Orders_Number__c
                 FROM Account
                 WHERE Total_Orders_Number__c > 0
                 ORDER BY Name
-            ]) {
+                 // TODO LIMIT ???
+           ]) {
                 pickListValues.add(new PicklistValue(acc.Name, String.valueOf(acc.Id)));
             }
+            return pickListValues;
         } catch (QueryException e) { 
-            throw new AuraHandledException( Constants.QUERY_ERROR ); 
+            throw new AuraHandledException( Label.Query_Error ); 
         } catch (Exception e) {
-            throw new AuraHandledException( Constants.UNEXPECTED_ERROR );
+            throw new AuraHandledException( Label.General_Error ); 
         }
-        return pickListValues;
     }
 
 
@@ -55,29 +56,28 @@ public with sharing class OrderCController {
     public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues(
         Id accountId
     ) {
- 
-        if (!Order__c.SObjectType.getDescribe().isAccessible()) {
-            throw new AuraHandledException( Constants.INSUFFICIENT_PERMISSIONS );
-            // throw new Custom ??? InsufficientPermissionException
-        }
-        
-        if (!Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ) {
-            throw new AuraHandledException( Constants.INSUFFICIENT_PERMISSIONS );
-            // throw new Custom ??? InsufficientPermissionException
-        }
-
         try {
+            if (!Order__c.SObjectType.getDescribe().isAccessible()) {
+                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
+            }
+            
+            if (!Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ) {
+                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
+            }
+            // TODO I need to check how many limits I have in a transaction
             List<Order__c> orders = [
                 SELECT Payment_Due_Date__c
                 FROM Order__c
                 WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
                 ORDER BY Payment_Due_Date__c ASC
-            ];
+                // TODO LIMIT ???
+            ]; 
             return createMonthPicklistValues(orders);
         } catch (QueryException e) { 
-            throw new AuraHandledException( Constants.QUERY_ERROR ); 
+            // TODO e.getMessage()+getStack() 
+            throw new AuraHandledException( Label.Query_Error );  // TODO Apex CustomLabel in Setup zamiast COnstants - multilinugual
         } catch (Exception e) {
-            throw new AuraHandledException( Constants.UNEXPECTED_ERROR );
+            throw new AuraHandledException( Label.General_Error ); 
         }
     }
 
@@ -107,42 +107,43 @@ public with sharing class OrderCController {
         Id accountId,
         Integer dueDateMonth
     ) {
-        if (!Order__c.SObjectType.getDescribe().isAccessible()) {
-            throw new AuraHandledException( Constants.INSUFFICIENT_PERMISSIONS );
-            // throw new Custom ??? InsufficientPermissionException
-        }
-        
-        if (!Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ||
-            !Order__c.fields.Total_Amount__c.getDescribe().isAccessible()) {
-            throw new AuraHandledException( Constants.INSUFFICIENT_PERMISSIONS );
-            // throw new Custom ??? InsufficientPermissionException
-        }
-
-        List<Order__c> orders = new List<Order__c>();
-        if (accountId == null || dueDateMonth == null) {
-            return orders;
-        }
-
-        List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
         try {
+            if (!Order__c.SObjectType.getDescribe().isAccessible()) {
+                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
+            }
+            
+            if (!Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ||
+                !Order__c.fields.Total_Amount__c.getDescribe().isAccessible()) {
+                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
+            }
+
+            List<Order__c> orders = new List<Order__c>();
+            if (accountId == null || dueDateMonth == null) {
+                return orders;
+            }
+
+            List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
+
+            // TODO I need to check how many limits I have in a transaction
             orders = [
                 SELECT Id, Name, Payment_Due_Date__c, Total_Amount__c
                 FROM Order__c
                 WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
                 ORDER BY Payment_Due_Date__c ASC
-            ];
+                // TODO LIMIT ???
+        ];
 
             for (Order__c ord : orders) {
                 if (ord.Payment_Due_Date__c.month() == dueDateMonth) {
                     ordersWithDueDateMonth.add(ord);
                 }
             }
+            return ordersWithDueDateMonth;
         } catch (QueryException e) { 
-            throw new AuraHandledException( Constants.QUERY_ERROR ); 
+            throw new AuraHandledException( Label.Query_Error ); 
         } catch (Exception e) {
-            throw new AuraHandledException( Constants.UNEXPECTED_ERROR );
+            throw new AuraHandledException( Label.General_Error ); 
         }
-        return ordersWithDueDateMonth;
     }
 
 }

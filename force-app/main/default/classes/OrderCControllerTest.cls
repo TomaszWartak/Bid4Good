@@ -75,7 +75,7 @@ private class OrderCControllerTest {
     }
 
     private static User getUserWithPermissions() {
-        return [SELECT Id FROM User WHERE Alias = 'jplac' LIMIT 1];
+        return [SELECT Id FROM User WHERE Alias = 'jplac' LIMIT 1]; // TODO Create user..
     }
 
     @isTest
