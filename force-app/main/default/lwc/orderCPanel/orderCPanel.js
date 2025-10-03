@@ -89,7 +89,7 @@ export default class OrderExplorer extends LightningElement {
     if (data) {
       this._accountsPicklistValues = data;
       this._isAccountPicklistLoading = false;
-      // TODO: console log - usunac pozniej
+      // TODO: 
       console.log(
         "Accounts from Apex:\n",
         JSON.stringify(this._accountsPicklistValues)
@@ -107,7 +107,7 @@ export default class OrderExplorer extends LightningElement {
     getAccountsWithOrdersPicklistValues()
         .then((data) => {
             this._accountsPicklistValues = data;
-            // TODO: console log - usunac pozniej
+            // TODO: 
             console.log(
             "Accounts from Apex:\n",
             JSON.stringify(this._accountsPicklistValues)
@@ -122,11 +122,11 @@ export default class OrderExplorer extends LightningElement {
     accountId: "$_selectedAccountId"
   })
   wiredMonths({ data, error }) {
-    // TODO log
+    // TODO 
     console.log("wiredMonths()");
     if (data) {
         this._monthsDueDatePicklistValues = data;
-        // TODO: console log - usunac pozniej
+        // TODO:
         console.log(
             "Months from Apex:\n",
             JSON.stringify(this._monthsDueDatePicklistValues)
@@ -150,7 +150,7 @@ export default class OrderExplorer extends LightningElement {
         })
         .then((data) => {
             this._monthsDueDatePicklistValues = data;
-            // TODO: console log - usunac pozniej
+            // TODO: 
             console.log(
                 "Months from Apex:\n",
                 JSON.stringify(this._monthsDueDatePicklistValues)
@@ -177,7 +177,7 @@ export default class OrderExplorer extends LightningElement {
             dueDateMonth: parseInt(this._selectedMonth, 10)
         })
         .then((data) => {
-            // TODO: console log - usunac pozniej
+            // TODO: 
             this._orders = data.map((order) => ({
                 ...order,
                 orderUrl: `/lightning/r/Order__c/${order.Id}/view`
@@ -221,7 +221,6 @@ export default class OrderExplorer extends LightningElement {
     orderCDCSubscription = {};
 
     subscribeToCDC() {
-        // AccountChangeEvent
         const accountChannel = "/data/AccountChangeEvent";
         subscribe(accountChannel, -1, (message) => {
             // TODO
@@ -231,7 +230,6 @@ export default class OrderExplorer extends LightningElement {
             this.accountSubscription = response;
         });
 
-        // Order__ChangeEvent
         const orderChannel = "/data/Order__ChangeEvent";
         subscribe(orderChannel, -1, (message) => {
             // TODO

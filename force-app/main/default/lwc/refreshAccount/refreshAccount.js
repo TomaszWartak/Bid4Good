@@ -9,7 +9,6 @@ export default class RefreshAccount extends LightningElement {
 
     accountCDCSubscription = {};
 
-    // Wykorzystujemy getRecord, aby uzyskać obiekt potrzebny do refreshApex
     @wire(getRecord, { recordId: '$recordId', fields: ['Account.Name'] }) 
     wiredRecord(result) {
         this.wiredRecordResult = result;

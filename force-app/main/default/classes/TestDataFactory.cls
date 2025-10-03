@@ -16,7 +16,6 @@ public with sharing class TestDataFactory {
   
   public static List<Account> createAccountsWithOrders() {
     List<Account> accs = createAccounts(ACCOUNTS_NUMBER);
-    // TODO - co z rezultatme createOrders()
     List<Order__c> ords = createOrders(accs, ordersPerAccount);
     accs = [
       SELECT Name, Total_Orders_Number__c
@@ -59,8 +58,6 @@ public with sharing class TestDataFactory {
     return ords;
   }
 
-  // TODO @testVisible
-  // private
   public static String createOrderNameForAccount(
     Integer ordNr,
     String accName

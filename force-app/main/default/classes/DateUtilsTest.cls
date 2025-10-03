@@ -8,7 +8,7 @@ private class DateUtilsTest {
 
   @isTest
   static void getMonthName_shouldReturnEmptyString_forInvalidMonthNumber() {
-    System.assertEquals('', DateUtils.getMonthName(0)); // poza zakresem
-    System.assertEquals('', DateUtils.getMonthName(13)); // poza zakresem
+    System.assertEquals('', DateUtils.getMonthName(0)); 
+    System.assertEquals('', DateUtils.getMonthName(13));
   }
 }
