@@ -30,13 +30,18 @@ export default class RefreshAccount extends LightningElement {
                 REFRESH_CHANNEL,
                 (message) => this.handleMessage(message)
             );
+            // TODO
+            console.log('Subskrypcja kanału LMS utworzona.');
         }
     }
 
     handleMessage(message) {
+        // TODO
+        console.log('Otrzymano wiadomość z kanału LMS:', message);
+
         // Ważne: Sprawdzamy, czy wiadomość dotyczy bieżącego rekordu
         if (message.recordId === this.recordId && this.wiredRecordResult) {
-             console.log('Otrzymano sygnał odświeżania dla bieżącego rekordu.');
+            console.log('Otrzymano sygnał odświeżania dla bieżącego rekordu.');
             refreshApex(this.wiredRecordResult)
                 .then(() => {
                     console.log('Compact Layout zaktualizowany.');

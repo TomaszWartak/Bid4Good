@@ -1,9 +1,13 @@
-import { LightningElement, track, wire } from "lwc";
+import { LightningElement, track, wire, api } from "lwc";
 import { subscribe, unsubscribe, onError } from "lightning/empApi";
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'; 
 import { reduceErrors } from 'c/errorUtils';
 
 import ADMIN_CONTACT_MESSAGE from '@salesforce/label/c.Contact_system_administrator';
+
+import REFRESH_CHANNEL from '@salesforce/messageChannel/RefreshAccount__c';
+import { publish, MessageContext } from 'lightning/messageService';
+
 import getAccountsWithOrdersPicklistValues_Cacheable from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues_Cacheable";
 import getAccountsWithOrdersPicklistValues from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues";
 import getPaymentDueDateMonthsForAccountPicklistValues from "@salesforce/apex/OrderCController.getPaymentDueDateMonthsForAccountPicklistValues";
@@ -11,7 +15,11 @@ import getPaymentDueDateMonthsForAccountPicklistValues_Cacheable from "@salesfor
 import getOrdersForAccountAndDueDateMonth from "@salesforce/apex/OrderCController.getOrdersForAccountAndDueDateMonth";
 
 export default class OrderExplorer extends LightningElement {
-  // API FOR LAYOUT ------------------------------------------------------------------------------------------------
+  // API for LMS Message Service (for Account.Total_Orders_Number_c refershing ------------------------------------------------
+  @api recordId; // TODO jak zacznie działać LM zmień na accountRecordId
+  @wire(MessageContext) messageContext;
+
+  // API for "OrderCPanel.HTML" ------------------------------------------------------------------------------------------------
 
   // --- for spinner while loading Accounts
   _isAccountPicklistLoading = true;
@@ -154,20 +162,27 @@ export default class OrderExplorer extends LightningElement {
                 "Months from Apex:\n",
                 JSON.stringify(this._monthsDueDatePicklistValues)
             );
+            this.refreshOrders();  
+            
+            // TODO zrób z tego oddzielną metodę
+            console.log('LMS Publishing signal for Account ID:', this.recordId); 
+            const payload = { 
+                recordId: this.recordId // TOID Konta ACCOUNT zaktualizowanego przez trigger
+            };
+            publish(this.messageContext, REFRESH_CHANNEL, payload);
         })
         .catch((error) => {
             this.handleError(error); 
         })
             
-        this.refreshOrders();
     }
 
     refreshOrders() {
         // TODO
         console.log("refreshOrders()");
         if (!this._selectedAccountId || !this._selectedMonth) {
-        this._orders = [];
-        return;
+            this._orders = [];
+            return;
         }
 
         this.areOrdersLoading = true;
@@ -178,8 +193,8 @@ export default class OrderExplorer extends LightningElement {
         .then((data) => {
             // TODO: console log - usunac pozniej
             this._orders = data.map((order) => ({
-            ...order,
-            orderUrl: `/lightning/r/Order__c/${order.Id}/view`
+                ...order,
+                orderUrl: `/lightning/r/Order__c/${order.Id}/view`
             }));
             // TODO
             console.log("Orders from Apex:\n", JSON.stringify(this._orders));
@@ -235,8 +250,6 @@ export default class OrderExplorer extends LightningElement {
         subscribe(orderChannel, -1, (message) => {
             // TODO
             console.log("Order__c change event received:", message);
-            // Wywołaj loadOrders() bezpośrednio po otrzymaniu zdarzenia
-            // this.loadOrders();
             this.refreshMonthsAndOrders();
         }).then((response) => {
             this.orderSubscription = response;
