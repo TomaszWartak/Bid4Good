@@ -5,9 +5,6 @@ import { reduceErrors } from 'c/errorUtils';
 
 import ADMIN_CONTACT_MESSAGE from '@salesforce/label/c.Contact_system_administrator';
 
-import REFRESH_CHANNEL from '@salesforce/messageChannel/RefreshAccount__c';
-import { publish, MessageContext } from 'lightning/messageService';
-
 import getAccountsWithOrdersPicklistValues_Cacheable from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues_Cacheable";
 import getAccountsWithOrdersPicklistValues from "@salesforce/apex/OrderCController.getAccountsWithOrdersPicklistValues";
 import getPaymentDueDateMonthsForAccountPicklistValues from "@salesforce/apex/OrderCController.getPaymentDueDateMonthsForAccountPicklistValues";
@@ -15,10 +12,6 @@ import getPaymentDueDateMonthsForAccountPicklistValues_Cacheable from "@salesfor
 import getOrdersForAccountAndDueDateMonth from "@salesforce/apex/OrderCController.getOrdersForAccountAndDueDateMonth";
 
 export default class OrderExplorer extends LightningElement {
-  // API for LMS Message Service (for Account.Total_Orders_Number_c refershing ------------------------------------------------
-  @api recordId; // TODO jak zacznie działać LM zmień na accountRecordId
-  @wire(MessageContext) messageContext;
-
   // API for "OrderCPanel.HTML" ------------------------------------------------------------------------------------------------
 
   // --- for spinner while loading Accounts
@@ -77,7 +70,7 @@ export default class OrderExplorer extends LightningElement {
     }
   ];
 
-  // --- for No Accounts with Orders message
+  // --- for "No Accounts with Orders" message
   get _isAccountListEmpty() {
     return (
       !this._isAccountPicklistLoading &&
@@ -163,14 +156,6 @@ export default class OrderExplorer extends LightningElement {
                 JSON.stringify(this._monthsDueDatePicklistValues)
             );
             this.refreshOrders();  
-
-            // TODO zrób z tego oddzielną metodę
-            this.recordId = this._selectedAccountId; 
-            console.log('LMS Publishing signal for Account ID:', this.recordId ); // TODO było recordId
-            const payload = { 
-                recordId: this.recordId // recordId TOID Konta ACCOUNT zaktualizowanego przez trigger
-            };
-            publish(this.messageContext, REFRESH_CHANNEL, payload);
         })
         .catch((error) => {
             this.handleError(error); 
@@ -232,8 +217,8 @@ export default class OrderExplorer extends LightningElement {
     }
 
     // --- CDC service ------------------------------------------------------------------------------------------------
-    accountSubscription = {};
-    orderSubscription = {};
+    accountCDCSubscription = {};
+    orderCDCSubscription = {};
 
     subscribeToCDC() {
         // AccountChangeEvent
@@ -253,7 +238,7 @@ export default class OrderExplorer extends LightningElement {
             console.log("Order__c change event received:", message);
             this.refreshMonthsAndOrders();
         }).then((response) => {
-            this.orderSubscription = response;
+            this.orderCDCSubscription = response;
         });
 
         onError((error) => {
@@ -263,11 +248,11 @@ export default class OrderExplorer extends LightningElement {
     }
 
     unsubscribeFromCDC() {
-        if (this.accountSubscription?.id) {
-          unsubscribe(this.accountSubscription, () => {});
+        if (this.accountCDCSubscription?.id) {
+          unsubscribe(this.accountCDCSubscription, () => {});
         }
-        if (this.orderSubscription?.id) {
-          unsubscribe(this.orderSubscription, () => {});
+        if (this.orderCDCSubscription?.id) {
+          unsubscribe(this.orderCDCSubscription, () => {});
         }
     }
 
