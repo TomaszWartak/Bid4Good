@@ -163,11 +163,12 @@ export default class OrderExplorer extends LightningElement {
                 JSON.stringify(this._monthsDueDatePicklistValues)
             );
             this.refreshOrders();  
-            
+
             // TODO zrób z tego oddzielną metodę
-            console.log('LMS Publishing signal for Account ID:', this.recordId); 
+            this.recordId = this._selectedAccountId; 
+            console.log('LMS Publishing signal for Account ID:', this.recordId ); // TODO było recordId
             const payload = { 
-                recordId: this.recordId // TOID Konta ACCOUNT zaktualizowanego przez trigger
+                recordId: this.recordId // recordId TOID Konta ACCOUNT zaktualizowanego przez trigger
             };
             publish(this.messageContext, REFRESH_CHANNEL, payload);
         })

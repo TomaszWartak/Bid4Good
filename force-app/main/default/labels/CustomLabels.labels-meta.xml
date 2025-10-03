@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Contact_system_administrator</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Contact system administrator</shortDescription>
+        <value>Please contact your system administrator.</value>
+    </labels>
+    <labels>
+        <fullName>Database_error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Database error</shortDescription>
+        <value>Database error</value>
+    </labels>
+    <labels>
+        <fullName>General_error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>General error</shortDescription>
+        <value>General error</value>
+    </labels>
+    <labels>
+        <fullName>Insufficient_Premissions</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Insufficient premissions</shortDescription>
+        <value>Insufficient premissions</value>
+    </labels>
+    <labels>
+        <fullName>Query_error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Query error</shortDescription>
+        <value>Query error</value>
+    </labels>
+</CustomLabels>

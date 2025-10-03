@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Order Operators</label>
+    <permissionSets>Account_Total_Orders_Number_Read</permissionSets>
+    <permissionSets>Order_Panel_Tab_Visible</permissionSets>
+    <permissionSets>Orders_CRE</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

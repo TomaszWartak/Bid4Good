@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#BA0F13</headerColor>
+        <logo>JetBIlogo</logo>
+        <logoVersion>1</logoVersion>
+        <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
+    </brand>
+    <description>An application that filters Order records based on Account and Payment Due Date month, and also provides the ability to send an email directly from the record interface.</description>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>Bid4Good</label>
+    <navType>Standard</navType>
+    <tabs>standard-ApprovalsHome</tabs>
+    <tabs>Order_Panel</tabs>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
+    <tabs>Order__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>Bid4Good_UtilityBar</utilityBar>
+</CustomApplication>
