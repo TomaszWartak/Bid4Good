@@ -59,12 +59,8 @@ public with sharing class OrderCController {
         Id accountId
     ) {
         try {
-            if (!Order__c.SObjectType.getDescribe().isAccessible()) {
-            // TODO Log: e.getMessage()+getStack() 
-                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
-            }
-            
-            if (!Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ) {
+            if (!Order__c.SObjectType.getDescribe().isAccessible() ||
+                !Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ) {
             // TODO Log: e.getMessage()+getStack() 
                 throw new InsufficientPermissionException( Label.Insufficient_Premissions );
             }
@@ -113,12 +109,8 @@ public with sharing class OrderCController {
         Integer dueDateMonth
     ) {
         try {
-            if (!Order__c.SObjectType.getDescribe().isAccessible()) {
-                // TODO Log: e.getMessage()+getStack() 
-                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
-            }
-            
-            if (!Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ||
+            if (!Order__c.SObjectType.getDescribe().isAccessible() ||
+                !Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ||
                 !Order__c.fields.Total_Amount__c.getDescribe().isAccessible()) {
                 // TODO Log: e.getMessage()+getStack() 
                 throw new InsufficientPermissionException( Label.Insufficient_Premissions );

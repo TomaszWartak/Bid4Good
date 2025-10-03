@@ -5,7 +5,8 @@ private class OrderCControllerTest {
         TestDataFactory.createAccountsWithOrders();
 
         Test.startTest();
-        List<OrderCController.PicklistValue> result = OrderCController.getAccountsWithOrdersPicklistValues();
+            List<OrderCController.PicklistValue> result = 
+                OrderCController.getAccountsWithOrdersPicklistValues_Cacheable();
         Test.stopTest();
 
         System.assertEquals(TestDataFactory.ACCOUNTS_NUMBER, result.size());
@@ -23,7 +24,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getAccountsWithOrdersPicklistValues();
+                    OrderCController.getAccountsWithOrdersPicklistValues_Cacheable();
                 } catch (AuraHandledException e) {
                     System.assertEquals( 'Script-thrown exception', e.getMessage() );
                     exceptionCaught = true;
@@ -40,28 +41,29 @@ private class OrderCControllerTest {
     private static User prepareUserWithoutPermissions() {
         Profile standardUserProfile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         return new User(
-            Alias = 'testuser', 
+            // Alias = 'testuser', 
             ProfileId = standardUserProfile.Id, 
-            Email = 'testuser@example.com' + System.currentTimeMillis(), 
+            Email = 'testuser' + System.currentTimeMillis() + '@example.com', 
             EmailEncodingKey = 'UTF-8', 
             LastName = 'Test', 
             LanguageLocaleKey = 'en_US', 
             LocaleSidKey = 'en_US', 
             TimeZoneSidKey = 'America/Los_Angeles', 
-            UserName = 'testuser' + System.currentTimeMillis() + '@example.com' 
+            UserName = 'testuser' + System.currentTimeMillis() + '@example.com',
+            Alias = 'testu'
         );
     }
-
+    
     @isTest 
     static void getAccountsWithOrdersPicklistValues_shouldNotThrowAuraHandledException_whenUserHasPermissions() {
-        User userWithPermissions = getUserWithPermissions();
+        User userWithPermissions = prepareUserWithPermissions();
         
         System.runAs(userWithPermissions) {
             Boolean exceptionNotCaught = true;
             
             Test.startTest();
                 try {
-                    OrderCController.getAccountsWithOrdersPicklistValues();
+                    OrderCController.getAccountsWithOrdersPicklistValues_Cacheable();
                 } catch (AuraHandledException e) {
                     System.assertEquals( 'Script-thrown exception', e.getMessage() );
                     exceptionNotCaught = false;
@@ -74,8 +76,38 @@ private class OrderCControllerTest {
         }
     }
 
-    private static User getUserWithPermissions() {
-        return [SELECT Id FROM User WHERE Alias = 'jplac' LIMIT 1]; // TODO Create user..
+    private static User prepareUserWithPermissions() {
+       
+        Profile standardUserProfile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        User u = new User(
+            ProfileId = standardUserProfile.Id,
+            Email = 'testuser' + System.currentTimeMillis() + '@example.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Test',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            TimeZoneSidKey = 'America/Los_Angeles', 
+            UserName = 'testuser' + System.currentTimeMillis() + '@example.com',
+            Alias = 'testu'
+        );
+
+        insert u; 
+
+        PermissionSetGroup psg = [
+            SELECT Id 
+            FROM PermissionSetGroup 
+            WHERE DeveloperName = 'Order_Operators' 
+            LIMIT 1
+        ];
+
+        PermissionSetAssignment psa = new PermissionSetAssignment(
+            AssigneeId = u.Id,
+            PermissionSetGroupId = psg.Id 
+        );
+
+        insert psa;
+        
+        return u;
     }
 
     @isTest
@@ -90,7 +122,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues(
+                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
                         DUMMY_ACCOUNT_ID
                     );
                 } catch (AuraHandledException e) {
@@ -107,7 +139,7 @@ private class OrderCControllerTest {
 
     @isTest 
     static void getPaymentDueDateMonthsForAccountPicklistValues_shouldNotThrowAuraHandledException_whenUserHasPermissions() {
-        User userWithPermissions = getUserWithPermissions();
+        User userWithPermissions = prepareUserWithPermissions();
         
         final Id DUMMY_ACCOUNT_ID = getDummyAccountId();
 
@@ -116,7 +148,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues(
+                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
                         DUMMY_ACCOUNT_ID
                     );
                 } catch (AuraHandledException e) {
@@ -160,8 +192,8 @@ private class OrderCControllerTest {
         Integer accountNr = 0; 
 
         Test.startTest();
-        List<OrderCController.PicklistValue> results = 
-            OrderCController.getPaymentDueDateMonthsForAccountPicklistValues( testAccounts[accountNr].Id );
+            List<OrderCController.PicklistValue> results = 
+                OrderCController.getPaymentDueDateMonthsForAccountPicklistValues_Cacheable( testAccounts[accountNr].Id );
         Test.stopTest();
 
         System.assertEquals(5, results.size(), 'Should return 5 unique month');
@@ -270,7 +302,7 @@ private class OrderCControllerTest {
     
     @isTest
     static void getOrdersForAccountAndDueDateMonth_shouldNotThrowAuraHandledException_whenUserHasPermissions() {
-        User userWithPermissions = getUserWithPermissions();
+        User userWithPermissions = prepareUserWithPermissions();
         
         final Id DUMMY_ACCOUNT_ID = getDummyAccountId();
         final Integer DUMMY_MONTH_NR = 0;
