@@ -17,7 +17,7 @@ export function reduceErrors(errors) {
                 errorsJSON = dmlErrorToJSON( error );
                 return errorsJSON;
             }
-            return error.message || error.body || error.statusText; // TODO
+            return error.message || error.body || error.statusText; 
         })
         .filter(message => !!message);
 }

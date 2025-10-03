@@ -1,4 +1,4 @@
-import { LightningElement, track, wire, api } from "lwc";
+import { LightningElement, track, wire } from "lwc";
 import { subscribe, unsubscribe, onError } from "lightning/empApi";
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'; 
 import { reduceErrors } from 'c/errorUtils';

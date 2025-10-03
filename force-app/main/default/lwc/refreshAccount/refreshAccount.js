@@ -30,6 +30,7 @@ export default class RefreshAccount extends LightningElement {
         console.log('Subskrypcja do kanału AccountChangeEvent - ON');
         const accountChannel = "/data/AccountChangeEvent";
         const messageCallback = (response) => {
+            // TODO
             console.log("Account change event received:", response );
 
             const eventPayload = response.data.payload;
