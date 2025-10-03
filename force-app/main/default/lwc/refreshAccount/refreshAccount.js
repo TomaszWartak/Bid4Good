@@ -1,16 +1,13 @@
 import { LightningElement, api, wire } from 'lwc';
 import { getRecord } from 'lightning/uiRecordApi';
 import { refreshApex } from '@salesforce/apex';
-import { subscribe, MessageContext } from 'lightning/messageService';
-import REFRESH_CHANNEL from '@salesforce/messageChannel/RefreshAccount__c';
+import { subscribe, onError } from 'lightning/empApi';
 
 export default class RefreshAccount extends LightningElement {
     @api recordId;
     wiredRecordResult;
-    subscription = null;
 
-    @wire(MessageContext)
-    messageContext;
+    accountCDCSubscription = {};
 
     // Wykorzystujemy getRecord, aby uzyskać obiekt potrzebny do refreshApex
     @wire(getRecord, { recordId: '$recordId', fields: ['Account.Name'] }) 
@@ -18,35 +15,59 @@ export default class RefreshAccount extends LightningElement {
         this.wiredRecordResult = result;
     }
 
+    // --- LIFE CYCLE HOOKS ------------------------------------------------------------------------------------------------
     connectedCallback() {
-        this.subscribeToMessageChannel();
+        this.subscribeToCDC();
     }
 
-    subscribeToMessageChannel() {
-        if (!this.subscription) {
-            // Subskrybujemy kanał
-            this.subscription = subscribe(
-                this.messageContext,
-                REFRESH_CHANNEL,
-                (message) => this.handleMessage(message)
-            );
-            // TODO
-            console.log('Subskrypcja kanału LMS utworzona.');
-        }
+    disconnectedCallback() {
+        this.unsubscribeFromCDC();
     }
 
-    handleMessage(message) {
+    // --- CDC service ------------------------------------------------------------------------------------------------
+
+    subscribeToCDC() {
         // TODO
-        console.log('Otrzymano wiadomość z kanału LMS:', message);
+        console.log('Subskrypcja do kanału AccountChangeEvent - ON');
+        const accountChannel = "/data/AccountChangeEvent";
+        const messageCallback = (response) => {
+            console.log("Account change event received:", response );
 
-        // Ważne: Sprawdzamy, czy wiadomość dotyczy bieżącego rekordu
-        if (message.recordId === this.recordId && this.wiredRecordResult) {
-            console.log('Otrzymano sygnał odświeżania dla bieżącego rekordu.');
-            refreshApex(this.wiredRecordResult)
-                .then(() => {
-                    console.log('Compact Layout zaktualizowany.');
-                });
+            const eventPayload = response.data.payload;
+            const changedFields = eventPayload.ChangeEventHeader.changedFields;
+            const recordIds = eventPayload.ChangeEventHeader.recordIds; 
+            const eventAppliesToThisRecord = recordIds.includes(this.recordId);
+            const targetFieldChanged = changedFields.includes('Total_Orders_Number__c');
+            
+            if (eventAppliesToThisRecord && targetFieldChanged && this.wiredRecordResult) {
+                // TODO
+                console.log('Walidacja OK. Pole Total_Orders_Number__c zostało zmienione dla bieżącego rekordu. Wywolywanie refreshApex.');
+                refreshApex(this.wiredRecordResult)
+                    .then(() => {
+                        // TODO
+                        console.log('Compact Layout zaktualizowany przez CDC Account.');
+                    });
+            }
+        };
+        subscribe( 
+            accountChannel, 
+            -1, 
+            messageCallback
+        ).then((response) => {
+            this.accountCDCSubscription = response;
+        });
+
+        onError((error) => {
+            // TODO
+            console.error("CDC Error:", error);
+        });
+    }
+
+    unsubscribeFromCDC() {
+        if (this.accountCDCSubscription?.id) {
+            // TODO
+            console.log('Subskrypcja do kanału AccountChangeEvent - OFF');
+            unsubscribe( this.accountCDCSubscription, () => {});
         }
     }
-    
 }
