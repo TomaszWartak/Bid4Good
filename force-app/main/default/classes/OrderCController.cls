@@ -21,7 +21,7 @@ public with sharing class OrderCController {
     @AuraEnabled
     public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
         try { 
-            if (!Account.Total_Orders_Number__c.getDescribe().isAccessible() ) {
+            if (isAccountTotalOrdersNumberNotAccesible()) {
                 // TODO Log: e.getMessage()+getStack() 
                 throw new InsufficientPermissionException( Label.Insufficient_Premissions );
             }
@@ -46,6 +46,14 @@ public with sharing class OrderCController {
         }
     }
 
+    @AuraEnabled
+    public static boolean isAccountTotalOrdersNumberAccesible() {
+        return Account.Total_Orders_Number__c.getDescribe().isAccessible();
+    }
+
+    private static boolean isAccountTotalOrdersNumberNotAccesible() {
+        return !isAccountTotalOrdersNumberAccesible();
+    }
 
     @AuraEnabled(cacheable=true)
     public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
@@ -59,8 +67,7 @@ public with sharing class OrderCController {
         Id accountId
     ) {
         try {
-            if (!Order__c.SObjectType.getDescribe().isAccessible() ||
-                !Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ) {
+            if (isOrderCNotAccesible() || isOrderCPaymentDueDateNotAccesible() ) {
             // TODO Log: e.getMessage()+getStack() 
                 throw new InsufficientPermissionException( Label.Insufficient_Premissions );
             }
@@ -82,6 +89,30 @@ public with sharing class OrderCController {
         }
     }
 
+    private static boolean isOrderCAccesible() {
+        return Order__c.SObjectType.getDescribe().isAccessible();
+    }
+
+    private static boolean isOrderCNotAccesible() {
+        return !isOrderCAccesible();
+    }
+
+    private static boolean isOrderCPaymentDueDateAccesible() {
+        return Order__c.Payment_Due_Date__c.getDescribe().isAccessible();
+    }
+
+    private static boolean isOrderCPaymentDueDateNotAccesible() {
+        return !isOrderCPaymentDueDateAccesible();
+    }
+    
+    private static boolean isOrderCTotalAmountAccesible() {
+        return Order__c.Total_Amount__c.getDescribe().isAccessible();
+    }
+
+    private static boolean isOrderCTotalAmountNotAccesible() {
+        return !isOrderCTotalAmountAccesible();
+    }
+   
     @testVisible
     private static List<PicklistValue> createMonthPicklistValues(
         List<Order__c> orders
@@ -109,9 +140,9 @@ public with sharing class OrderCController {
         Integer dueDateMonth
     ) {
         try {
-            if (!Order__c.SObjectType.getDescribe().isAccessible() ||
-                !Order__c.Payment_Due_Date__c.getDescribe().isAccessible() ||
-                !Order__c.fields.Total_Amount__c.getDescribe().isAccessible()) {
+            if (isOrderCNotAccesible() ||
+                isOrderCPaymentDueDateNotAccesible() ||
+                isOrderCTotalAmountNotAccesible() ) {
                 // TODO Log: e.getMessage()+getStack() 
                 throw new InsufficientPermissionException( Label.Insufficient_Premissions );
             }
