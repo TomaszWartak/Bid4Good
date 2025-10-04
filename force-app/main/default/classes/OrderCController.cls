@@ -46,8 +46,7 @@ public with sharing class OrderCController {
         }
     }
 
-    @AuraEnabled
-    public static boolean isAccountTotalOrdersNumberAccesible() {
+    private static boolean isAccountTotalOrdersNumberAccesible() {
         return Account.Total_Orders_Number__c.getDescribe().isAccessible();
     }
 
