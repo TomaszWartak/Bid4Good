@@ -27,7 +27,7 @@ export default class RefreshAccount extends LightningElement {
 
     subscribeToCDC() {
         // TODO
-        console.log('Subskrypcja do kanału AccountChangeEvent - ON');
+        console.log('AccountChangeEvent channel subscribtion - ON');
         const accountChannel = "/data/AccountChangeEvent";
         const messageCallback = (response) => {
             // TODO
@@ -41,11 +41,11 @@ export default class RefreshAccount extends LightningElement {
             
             if (eventAppliesToThisRecord && targetFieldChanged && this.wiredRecordResult) {
                 // TODO
-                console.log('Walidacja OK. Pole Total_Orders_Number__c zostało zmienione dla bieżącego rekordu. Wywolywanie refreshApex.');
+                console.log('Validation OK. The Total_Orders_Number__c field has been changed for the current record. Calling refreshApex.');
                 refreshApex(this.wiredRecordResult)
                     .then(() => {
                         // TODO
-                        console.log('Compact Layout zaktualizowany przez CDC Account.');
+                        console.log('Compact Layout updated by CDC Account.');
                     });
             }
         };
@@ -66,7 +66,7 @@ export default class RefreshAccount extends LightningElement {
     unsubscribeFromCDC() {
         if (this.accountCDCSubscription?.id) {
             // TODO
-            console.log('Subskrypcja do kanału AccountChangeEvent - OFF');
+            console.log('AccountChangeEvent channel subscribtion - OFF');
             unsubscribe( this.accountCDCSubscription, () => {});
         }
     }
