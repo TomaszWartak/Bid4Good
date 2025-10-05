@@ -132,7 +132,6 @@ public with sharing class OrderCController {
         return pickListValues;
     }
 
-    //=======================================================================
     @AuraEnabled
     public static List<Order__c> getOrdersForAccountAndDueDateMonth(
         Id accountId,

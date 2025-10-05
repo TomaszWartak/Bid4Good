@@ -25,11 +25,7 @@ export default class RefreshAccount extends LightningElement {
 
     // --- CDC service ------------------------------------------------------------------------------------------------
 
-    subscribeToCDC() {
-        // TODO
-        console.log('AccountChangeEvent channel subscribtion - ON');
-        const accountChannel = "/data/AccountChangeEvent";
-        const messageCallback = (response) => {
+    messageCallback = (response) => {
             // TODO
             console.log("Account change event received:", response );
 
@@ -48,11 +44,17 @@ export default class RefreshAccount extends LightningElement {
                         console.log('Compact Layout updated by CDC Account.');
                     });
             }
-        };
+    };
+
+    subscribeToCDC() {
+        // TODO
+        console.log('AccountChangeEvent channel subscribtion - ON');
+        const accountChannel = "/data/AccountChangeEvent";
+        
         subscribe( 
             accountChannel, 
             -1, 
-            messageCallback
+            this.messageCallback
         ).then((response) => {
             this.accountCDCSubscription = response;
         });

@@ -3,7 +3,7 @@ private class OrderCTriggerTest {
   @isTest
   static void afterInsert() {
     Test.startTest();
-    List<Account> newAccounts = TestDataFactory.createAccountsWithOrders();
+      List<Account> newAccounts = TestDataFactory.createAccountsWithOrders();
     Test.stopTest();
 
     System.assertEquals(
@@ -30,13 +30,13 @@ private class OrderCTriggerTest {
   @isTest
   static void afterDelete() {
     Test.startTest();
-    List<Account> accounts = TestDataFactory.createAccountsWithOrders();
-    List<Order__c> ordersToDelete = [
-      SELECT Id
-      FROM Order__c
-      WHERE Account__c IN :accounts
-    ];
-    delete ordersToDelete;
+      List<Account> accounts = TestDataFactory.createAccountsWithOrders();
+      List<Order__c> ordersToDelete = [
+        SELECT Id
+        FROM Order__c
+        WHERE Account__c IN :accounts
+      ];
+      delete ordersToDelete;
     Test.stopTest();
 
     accounts = [
@@ -58,14 +58,14 @@ private class OrderCTriggerTest {
   @isTest
   static void afterUndelete() {
     Test.startTest();
-    List<Account> accounts = TestDataFactory.createAccountsWithOrders();
-    List<Order__c> ordersToDelete = [
-      SELECT Id
-      FROM Order__c
-      WHERE Account__c IN :accounts
-    ];
-    delete ordersToDelete;
-    undelete ordersToDelete;
+      List<Account> accounts = TestDataFactory.createAccountsWithOrders();
+      List<Order__c> ordersToDelete = [
+        SELECT Id
+        FROM Order__c
+        WHERE Account__c IN :accounts
+      ];
+      delete ordersToDelete;
+      undelete ordersToDelete;
     Test.stopTest();
 
     accounts = [
