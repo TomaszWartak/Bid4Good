@@ -2,6 +2,7 @@ import { LightningElement, track, wire } from "lwc";
 import { subscribe, unsubscribe, onError } from "lightning/empApi";
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'; 
 import { reduceErrors } from 'c/errorUtils';
+import { refreshApex } from '@salesforce/apex';
 
 import ADMIN_CONTACT_MESSAGE from '@salesforce/label/c.Contact_system_administrator';
 
@@ -15,37 +16,40 @@ export default class OrderExplorer extends LightningElement {
   // API for "OrderCPanel.HTML" ------------------------------------------------------------------------------------------------
 
   // --- for spinner while loading Accounts
-  _isAccountPicklistLoading = true;
+  isAccountPicklistLoading = true;
 
   // --- for Account Picker
-  get _isAccountListNotEmpty() {
-    return !this._isAccountListEmpty;
+  get isAccountListNotEmpty() {
+    return !this.isAccountListEmpty;
   }
-  @track _accountsPicklistValues = [];
-  @track _selectedAccountId;
-  _handleAccountChange(event) {
-    this._selectedAccountId = event.detail.value;
-    this._selectedMonth = null; 
+  @track accountsPicklistValues = [];
+  wiredAccountsPicklistValuesResult;
+  @track selectedAccountId;
+  handleAccountChange(event) {
+    this.selectedAccountId = event.detail.value;
+    this.selectedMonth = null; 
     this.refreshMonthsAndOrders();
   }
 
   // --- for Months due date picker
-  get _isMonthsDueDateListNotEmpty() {
-    return !this._isAccountListEmpty; // If account list is not empty, months list is also not empty
+  get isMonthsDueDateListNotEmpty() {
+    return !this.isAccountListEmpty; // If account list is not empty, months list is also not empty
   }
-  @track _monthsDueDatePicklistValues = [];
-  @track _selectedMonth;
-  _handleMonthsDueDateChange(event) {
-    this._selectedMonth = event.target.value;
+  @track monthsDueDatePicklistValues = [];
+  wiredMonthsDueDatePicklistValuesResult;
+  @track selectedMonth;
+  handleMonthsDueDateChange(event) {
+    this.selectedMonth = event.target.value;
     this.refreshOrders();
   }
 
   // --- for Orders List
   get _isOrdersListNotEmpty() {
-    return !this.areOrdersLoading && this._orders && this._orders.length > 0;
+    return !this._areOrdersLoading && this.orders && this.orders.length > 0;
   }
-  @track _orders = [];
-  _ordersColumns = [
+  @track orders = [];
+  wiredOrdersResult;
+  ordersColumns = [
     {
       label: "Order Name",
       fieldName: "orderUrl",
@@ -71,32 +75,33 @@ export default class OrderExplorer extends LightningElement {
   ];
 
   // --- for "No Accounts with Orders" message
-  get _isAccountListEmpty() {
+  get isAccountListEmpty() {
     return (
-      !this._isAccountPicklistLoading &&
-      (!this._accountsPicklistValues ||
-        this._accountsPicklistValues.length === 0)
+      !this.isAccountPicklistLoading &&
+      (!this.accountsPicklistValues ||
+        this.accountsPicklistValues.length === 0)
     );
   }
 
   // INTERNAL --------------------------------------------------------------------------------------------------------
-  areOrdersLoading = false;
+  _areOrdersLoading = false;
 
   @wire(getAccountsWithOrdersPicklistValues_Cacheable)
-  wiredAccounts({ data, error }) {
+  wiredAccounts( result ) {
     // log
     console.log("wiredAccounts()");
-    if (data) {
-      this._accountsPicklistValues = data;
-      this._isAccountPicklistLoading = false;
+    this.wiredAccountsPicklistValuesResult = result;
+    if (result.data) {
+      this.accountsPicklistValues = result.data;
+      this.isAccountPicklistLoading = false;
       // TODO: 
       console.log(
         "Accounts from Apex:\n",
-        JSON.stringify(this._accountsPicklistValues)
+        JSON.stringify(this.accountsPicklistValues)
       );
     }
-    if (error) {
-        this.handleError(error); 
+    if (result.error) {
+        this.handleError(result.error); 
     }
   }
 
@@ -110,7 +115,7 @@ export default class OrderExplorer extends LightningElement {
             // TODO: 
             console.log(
             "Accounts from Apex:\n",
-            JSON.stringify(this._accountsPicklistValues)
+            JSON.stringify(this.accountsPicklistValues)
             );
         })
         .catch((error) => {
@@ -119,77 +124,104 @@ export default class OrderExplorer extends LightningElement {
   }
 
   @wire(getPaymentDueDateMonthsForAccountPicklistValues_Cacheable, {
-    accountId: "$_selectedAccountId"
+    accountId: "$selectedAccountId"
   })
-  wiredMonths({ data, error }) {
+  wiredMonths( result ) {
     // TODO 
     console.log("wiredMonths()");
-    if (data) {
-        this._monthsDueDatePicklistValues = data;
+    this.wiredMonthsDueDatePicklistValuesResult = result;
+    if (result.data) {
+        this.monthsDueDatePicklistValues = result.data;
         // TODO:
         console.log(
             "Months from Apex:\n",
-            JSON.stringify(this._monthsDueDatePicklistValues)
+            JSON.stringify(this.monthsDueDatePicklistValues)
         );
     }
-    if (error) {
-        this.handleError(error); 
+    if (result.error) {
+        this.handleError(result.error); 
     }
   }
 
-    // TODO - wygląda podobnie do wiredMonths
+
     refreshMonthsAndOrders() {
         // TODO
         console.log("refreshMonthsAndOrders()");
 
-        if (!this._selectedAccountId) {
+        if (!this.selectedAccountId) {
             return;
-        }
-        getPaymentDueDateMonthsForAccountPicklistValues({
-            accountId: this._selectedAccountId
-        })
-        .then((data) => {
-            this._monthsDueDatePicklistValues = data;
-            // TODO: 
-            console.log(
-                "Months from Apex:\n",
-                JSON.stringify(this._monthsDueDatePicklistValues)
-            );
+        };
+
+        refreshApex(this.wiredMonthsDueDatePicklistValuesResult)
+          .then(() => {
             this.refreshOrders();  
-        })
-        .catch((error) => {
-            this.handleError(error); 
-        })
-            
+          });
+    }
+
+    @wire(getOrdersForAccountAndDueDateMonth, {
+      accountId: "$selectedAccountId",
+      dueDateMonth: "$selectedMonth"
+    })
+    wiredOrders( result ) {
+        // TODO 
+        console.log("wiredOrders()");
+        this.wiredOrdersResult = result;
+        if (result.data) {
+          this.orders = result.data.map((order) => ({
+                ...order,
+                orderUrl: `/lightning/r/Order__c/${order.Id}/view`
+            }));
+            // TODO
+            console.log("Orders from Apex:\n", JSON.stringify(this.orders))
+        };
+        if (result.error) {
+          this.handleError(result.error); 
+        } 
     }
 
     refreshOrders() {
         // TODO
         console.log("refreshOrders()");
-        if (!this._selectedAccountId || !this._selectedMonth) {
-            this._orders = [];
+        if (!this.selectedAccountId || !this.selectedMonth) {
+            this.orders = [];
             return;
         }
 
-        this.areOrdersLoading = true;
+        this._areOrdersLoading = true;
+
+        refreshApex(this.wiredOrdersResult)
+          .finally(() => {
+            this._areOrdersLoading = false;
+          });
+    }
+
+    refreshOrders2() { // TODO - duplicate of refreshOrders()
+        // TODO
+        console.log("refreshOrders2()");
+        if (!this.selectedAccountId || !this.selectedMonth) {
+            this.orders = [];
+            return;
+        }
+
+        this._areOrdersLoading = true;
         getOrdersForAccountAndDueDateMonth({
-            accountId: this._selectedAccountId,
-            dueDateMonth: parseInt(this._selectedMonth, 10)
+            accountId: this.selectedAccountId,
+            dueDateMonth: parseInt(this.selectedMonth, 10)
         })
         .then((data) => {
             // TODO: 
-            this._orders = data.map((order) => ({
+            this.orders = data.map((order) => ({
                 ...order,
                 orderUrl: `/lightning/r/Order__c/${order.Id}/view`
             }));
             // TODO
-            console.log("Orders from Apex:\n", JSON.stringify(this._orders));
+            console.log("Orders from Apex:\n", JSON.stringify(this.orders));
         })
         .catch((error) => {
             this.handleError(error); 
         })
         .finally(() => {
-            this.areOrdersLoading = false;
+            this._areOrdersLoading = false;
         });
     }
 
@@ -217,8 +249,8 @@ export default class OrderExplorer extends LightningElement {
     }
 
     // --- CDC service ------------------------------------------------------------------------------------------------
-    accountCDCSubscription = {};
-    orderCDCSubscription = {};
+    _accountCDCSubscription = {};
+    _orderCDCSubscription = {};
 
     subscribeToCDC() {
         const accountChannel = "/data/AccountChangeEvent";
@@ -227,7 +259,7 @@ export default class OrderExplorer extends LightningElement {
             console.log("Account change event received:", message);
             this.refreshAccounts();
         }).then((response) => {
-            this.accountCDCSubscription = response; // TODO? this.accountSubscription = response;
+            this.accountSubscription = response;
         });
 
         const orderChannel = "/data/Order__ChangeEvent";
@@ -236,7 +268,7 @@ export default class OrderExplorer extends LightningElement {
             console.log("Order__c change event received:", message);
             this.refreshMonthsAndOrders();
         }).then((response) => {
-            this.orderCDCSubscription = response;
+            this._orderCDCSubscription = response;
         });
 
         onError((error) => {
@@ -246,11 +278,11 @@ export default class OrderExplorer extends LightningElement {
     }
 
     unsubscribeFromCDC() {
-        if (this.accountCDCSubscription?.id) {
-          unsubscribe(this.accountCDCSubscription, () => {});
+        if (this._accountCDCSubscription?.id) {
+          unsubscribe(this._accountCDCSubscription, () => {});
         }
-        if (this.orderCDCSubscription?.id) {
-          unsubscribe(this.orderCDCSubscription, () => {});
+        if (this._orderCDCSubscription?.id) {
+          unsubscribe(this._orderCDCSubscription, () => {});
         }
     }
 

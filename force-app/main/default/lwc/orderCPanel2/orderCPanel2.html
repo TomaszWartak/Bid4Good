@@ -1,0 +1,53 @@
+<template>
+  <lightning-card title="Order Panel" icon-name="standard:order">
+    <div class="slds-p-around_medium">
+      <!-- SPINNER while loading Accounts -->
+      <template if:true={isAccountPicklistLoading}>
+        <lightning-spinner
+          alternative-text="Loading accounts data..."
+          size="medium"
+        ></lightning-spinner>
+      </template>
+      <!-- Account Picker -->
+      <template if:true={isAccountListNotEmpty}>
+        <lightning-combobox
+          name="account"
+          label="Account"
+          placeholder="Select Account"
+          options={accountsPicklistValues}
+          value={selectedAccountId}
+          onchange={handleAccountChange}
+        ></lightning-combobox>
+      </template>
+      <!-- Months due date picker -->
+      <template if:true={isMonthsDueDateListNotEmpty}>
+        <lightning-combobox
+          name="monthsDueDate"
+          label="Months Due Date"
+          placeholder="Select Months Due Date"
+          options={monthsDueDatePicklistValues}
+          value={selectedMonth}
+          onchange={handleMonthsDueDateChange}
+        ></lightning-combobox>
+      </template>
+      <!-- Orders List -->
+      <p class="slds-text-body_small slds-m-top_x-small slds-m-bottom_x-small">
+        Orders with due date
+      </p>
+      <lightning-datatable
+        key-field="Name"
+        data={orders}
+        columns={ordersColumns}
+        hide-checkbox-column="true"
+        show-row-number-column="true"
+      >
+      </lightning-datatable>
+      <!-- No Accounts with Orders -->
+      <template if:true={_isAccountListEmpty}>
+        <p class="slds-text-color_error slds-m-top_small">
+          No Accounts with Orders!
+        </p>
+      </template>
+    </div>
+  </lightning-card>
+</template>

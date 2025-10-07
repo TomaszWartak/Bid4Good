@@ -18,7 +18,7 @@ public with sharing class OrderCController {
         return getAccountsWithOrdersPicklistValues();
     }
 
-    @AuraEnabled
+    @AuraEnabled(cacheable=true)
     public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
         try { 
             if (isAccountTotalOrdersNumberNotAccesible()) {
@@ -61,7 +61,7 @@ public with sharing class OrderCController {
         return getPaymentDueDateMonthsForAccountPicklistValues(accountId);
     }
 
-    @AuraEnabled
+    @AuraEnabled(cacheable=true)
     public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues(
         Id accountId
     ) {
@@ -132,10 +132,10 @@ public with sharing class OrderCController {
         return pickListValues;
     }
 
-    @AuraEnabled
+    @AuraEnabled(cacheable=true)
     public static List<Order__c> getOrdersForAccountAndDueDateMonth(
         Id accountId,
-        Integer dueDateMonth
+        String dueDateMonth
     ) {
         try {
             if (isOrderCNotAccesible() ||
@@ -146,9 +146,10 @@ public with sharing class OrderCController {
             }
 
             List<Order__c> orders = new List<Order__c>();
-            if (accountId == null || dueDateMonth == null) {
+            if (accountId == null || String.isBlank(dueDateMonth)) {
                 return orders;
             }
+            Integer month = Integer.valueOf(dueDateMonth);
 
             List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
 
@@ -161,7 +162,7 @@ public with sharing class OrderCController {
             ];
 
             for (Order__c ord : orders) {
-                if (ord.Payment_Due_Date__c.month() == dueDateMonth) {
+                if (ord.Payment_Due_Date__c.month() == month) {
                     ordersWithDueDateMonth.add(ord);
                 }
             }
