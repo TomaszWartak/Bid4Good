@@ -3,8 +3,8 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>orderCPanel</componentName>
-                <identifier>c_orderCPanel</identifier>
+                <componentName>orderCPanel2</componentName>
+                <identifier>c_orderCPanel2</identifier>
             </componentInstance>
         </itemInstances>
         <name>main</name>
