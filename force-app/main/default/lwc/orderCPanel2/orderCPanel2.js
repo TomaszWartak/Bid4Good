@@ -22,6 +22,18 @@ export default class OrderExplorer extends LightningElement {
   }
   @track accountsPicklistValues = [];
   @track selectedAccountId;
+  get selectedAccountName() {
+    // TODO
+    console.log("selectedAccountId: ", this.selectedAccountId);
+    // TODO
+    console.log("accountsPicklistValues: ", this.accountsPicklistValues);
+    const accountPicklistValue = this.accountsPicklistValues.find(
+      apv => apv.value === this.selectedAccountId
+    );
+    // TODO
+    console.log("accountPickListValue: ", accountPicklistValue );
+    return accountPicklistValue ? accountPicklistValue.label : '';
+  }
   handleAccountChange(event) {
     this.selectedAccountId = event.detail.value;
     this.selectedMonth = null; 
@@ -46,10 +58,16 @@ export default class OrderExplorer extends LightningElement {
   @track orders = [];
   ordersColumns = [
     {
+      label: "Account Name",
+      fieldName: "accountUrl",
+      type: "url",
+      typeAttributes: { label: { fieldName: "accountName" }, target: "_blank" }
+    },
+    {
       label: "Order Name",
       fieldName: "orderUrl",
       type: "url",
-      typeAttributes: { label: { fieldName: "Name" }, target: "_blank" }
+      typeAttributes: { label: { fieldName: "orderName" }, target: "_blank" }
     },
     {
       label: "Payment Due Date",
@@ -153,9 +171,14 @@ export default class OrderExplorer extends LightningElement {
       console.log("wiredOrders()");
       this._wiredOrdersResult = result;
       if (result.data) {
+        // TODO
+        console.log("selectedAccountName: ", this.selectedAccountName);
         this.orders = result.data.map((order) => ({
               ...order,
-              orderUrl: `/lightning/r/Order__c/${order.Id}/view`
+              orderName: order.Name,
+              orderUrl: `/lightning/r/Order__c/${order.Id}/view`,
+              accountName: this.selectedAccountName ?? '',
+              accountUrl: `/lightning/r/Account/${this.selectedAccountId}/view`
           }));
           // TODO
           console.log("Orders from Apex:\n", JSON.stringify(this.orders))
