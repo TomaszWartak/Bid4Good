@@ -14,11 +14,6 @@ public with sharing class OrderCController {
     }
 
     @AuraEnabled(cacheable=true)
-    public static List<PicklistValue> getAccountsWithOrdersPicklistValues_Cacheable() {
-        return getAccountsWithOrdersPicklistValues();
-    }
-
-    @AuraEnabled(cacheable=true)
     public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
         try { 
             if (isAccountTotalOrdersNumberNotAccesible()) {
@@ -52,13 +47,6 @@ public with sharing class OrderCController {
 
     private static boolean isAccountTotalOrdersNumberNotAccesible() {
         return !isAccountTotalOrdersNumberAccesible();
-    }
-
-    @AuraEnabled(cacheable=true)
-    public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
-        Id accountId
-    ) {
-        return getPaymentDueDateMonthsForAccountPicklistValues(accountId);
     }
 
     @AuraEnabled(cacheable=true)

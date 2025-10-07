@@ -6,7 +6,7 @@ private class OrderCControllerTest {
 
         Test.startTest();
             List<OrderCController.PicklistValue> result = 
-                OrderCController.getAccountsWithOrdersPicklistValues_Cacheable();
+                OrderCController.getAccountsWithOrdersPicklistValues();
         Test.stopTest();
 
         System.assertEquals(TestDataFactory.ACCOUNTS_NUMBER, result.size());
@@ -24,7 +24,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getAccountsWithOrdersPicklistValues_Cacheable();
+                    OrderCController.getAccountsWithOrdersPicklistValues();
                 } catch (AuraHandledException e) {
                     System.assertEquals( 'Script-thrown exception', e.getMessage() );
                     exceptionCaught = true;
@@ -63,7 +63,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getAccountsWithOrdersPicklistValues_Cacheable();
+                    OrderCController.getAccountsWithOrdersPicklistValues();
                 } catch (AuraHandledException e) {
                     System.assertEquals( 'Script-thrown exception', e.getMessage() );
                     exceptionNotCaught = false;
@@ -122,7 +122,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
+                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues(
                         DUMMY_ACCOUNT_ID
                     );
                 } catch (AuraHandledException e) {
@@ -148,7 +148,7 @@ private class OrderCControllerTest {
             
             Test.startTest();
                 try {
-                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues_Cacheable(
+                    OrderCController.getPaymentDueDateMonthsForAccountPicklistValues(
                         DUMMY_ACCOUNT_ID
                     );
                 } catch (AuraHandledException e) {
@@ -189,11 +189,11 @@ private class OrderCControllerTest {
     @isTest
     static void getPaymentDueDateMonthsForAccountPicklistValues_shouldReturn5Months() {
         List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
-        Integer accountNr = 0; 
+        final Integer ACCOUNT_NR = 2; 
 
         Test.startTest();
             List<OrderCController.PicklistValue> results = 
-                OrderCController.getPaymentDueDateMonthsForAccountPicklistValues_Cacheable( testAccounts[accountNr].Id );
+                OrderCController.getPaymentDueDateMonthsForAccountPicklistValues( testAccounts[ACCOUNT_NR].Id );
         Test.stopTest();
 
         System.assertEquals(5, results.size(), 'Should return 5 unique month');
@@ -203,13 +203,13 @@ private class OrderCControllerTest {
     static void getOrdersForAccountAndDueDateMonth_shouldReturnCorrectValues_for2And9() {
         List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
 
-        Integer accountNr = 2; 
-        Integer monthNr = 9;
+        final Integer ACCOUNT_NR = 2; 
+        final String MONTH_NR = '9';
 
         Test.startTest();
             List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
-                testAccounts[accountNr].Id,
-                monthNr
+                testAccounts[ACCOUNT_NR].Id,
+                MONTH_NR
             );
         Test.stopTest();
 
@@ -220,7 +220,7 @@ private class OrderCControllerTest {
         );
 
         System.assertEquals(
-            monthNr, 
+            Integer.valueOf(MONTH_NR), 
             results[0].Payment_Due_Date__c.month()
         );
     }
@@ -229,13 +229,13 @@ private class OrderCControllerTest {
     static void getOrdersForAccountAndDueDateMonth_shouldReturnCorrectValues_for1And1() {
         List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
 
-        Integer accountNr = 1; 
-        Integer monthNr = 1;
+        final Integer ACCOUNT_NR = 1; 
+        final String MONTH_NR = '1';
 
         Test.startTest();
         List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
-            testAccounts[accountNr].Id,
-            monthNr
+            testAccounts[ACCOUNT_NR].Id,
+            MONTH_NR
         );
         Test.stopTest();
 
@@ -246,12 +246,12 @@ private class OrderCControllerTest {
         );
 
         System.assertEquals(
-            monthNr, 
+            Integer.valueOf(MONTH_NR), 
             results[0].Payment_Due_Date__c.month()
         );
 
         System.assertEquals(
-            monthNr, 
+            Integer.valueOf(MONTH_NR), 
             results[1].Payment_Due_Date__c.month()
         );
     }
@@ -260,10 +260,12 @@ private class OrderCControllerTest {
     static void getOrdersForAccountAndDueDateMonth_shouldReturnEmptyList_forMonthWithoutDueDate() {
         List<Account> testAccounts = TestDataFactory.createAccountsWithOrders();
 
+        final String MONTH_NR = '3';
+
         Test.startTest();
         List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
             testAccounts[2].Id,
-            3
+            MONTH_NR
         );
         Test.stopTest();
 
@@ -275,8 +277,8 @@ private class OrderCControllerTest {
         User testUserWithoutPermissions = prepareUserWithoutPermissions();
         insert testUserWithoutPermissions;
         
-        final Id DUMMY_ACCOUNT_ID = '001000000000000AAA'; 
-        final Integer DUMMY_MONTH_NR = 0;
+        final Id DUMMY_ACCOUNT_ID = getDummyAccountId();
+        final String DUMMY_MONTH_NR = '0';
 
         System.runAs(testUserWithoutPermissions) {
             Boolean exceptionCaught = false;
@@ -305,7 +307,7 @@ private class OrderCControllerTest {
         User userWithPermissions = prepareUserWithPermissions();
         
         final Id DUMMY_ACCOUNT_ID = getDummyAccountId();
-        final Integer DUMMY_MONTH_NR = 0;
+        final String DUMMY_MONTH_NR = '0';
 
         System.runAs(userWithPermissions) {
             Boolean exceptionNotCaught = true;
