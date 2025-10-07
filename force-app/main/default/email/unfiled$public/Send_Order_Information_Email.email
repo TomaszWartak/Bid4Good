@@ -15,6 +15,6 @@
                 <apex:param value="{!relatedTo.Payment_Due_Date__c}" />
             </apex:outputText>
         </p>
-        <img src="{!$Resource.CompanyLogo}" alt="Company Logo" width="150"/>
+        <img src="{!$Resource.CompanyLogo}" alt="Company Logo" width="80"/>
     </messaging:htmlEmailBody>
 </messaging:emailTemplate>
