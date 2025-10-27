@@ -1,167 +1,177 @@
 public with sharing class OrderCController {
+  public class PicklistValue {
+    @AuraEnabled
+    public String label;
 
-    public class PicklistValue {
-        @AuraEnabled
-        public String label;
+    @AuraEnabled
+    public String value;
 
-        @AuraEnabled
-        public String value;
+    public PicklistValue(String l, String v) {
+      label = l;
+      value = v;
+    }
+  }
 
-        public PicklistValue(String l, String v) {
-            label = l;
-            value = v;
+  @AuraEnabled(cacheable=true)
+  public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
+    try {
+      if (isAccountTotalOrdersNumberNotAccesible()) {
+        // TODO Log: e.getMessage()+getStack()
+        throw new InsufficientPermissionException(
+          Label.Insufficient_Premissions
+        );
+      }
+
+      List<PicklistValue> pickListValues = new List<PicklistValue>();
+      for (Account acc : [
+        SELECT Name, Total_Orders_Number__c
+        FROM Account
+        WHERE Total_Orders_Number__c > 0
+        ORDER BY Name
+        LIMIT 1000
+      ]) {
+        pickListValues.add(new PicklistValue(acc.Name, String.valueOf(acc.Id)));
+      }
+      return pickListValues;
+    } catch (QueryException e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.Query_Error);
+    } catch (Exception e) {
+      // TODO Log: e.getMessage()+getStack()
+      // TODO
+      System.debug(
+        'Error: ' + e.getMessage() + +'\n' + e.getStackTraceString()
+      );
+      throw new AuraHandledException(Label.General_Error);
+    }
+  }
+
+  private static boolean isAccountTotalOrdersNumberAccesible() {
+    return Account.Total_Orders_Number__c.getDescribe().isAccessible();
+  }
+
+  private static boolean isAccountTotalOrdersNumberNotAccesible() {
+    return !isAccountTotalOrdersNumberAccesible();
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues(
+    Id accountId
+  ) {
+    try {
+      if (isOrderCNotAccesible() || isOrderCPaymentDueDateNotAccesible()) {
+        // TODO Log: e.getMessage()+getStack()
+        throw new InsufficientPermissionException(
+          Label.Insufficient_Premissions
+        );
+      }
+
+      List<Order__c> orders = [
+        SELECT Payment_Due_Date__c
+        FROM Order__c
+        WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
+        ORDER BY Payment_Due_Date__c ASC
+        LIMIT 1000
+      ];
+      return createMonthPicklistValues(orders);
+    } catch (QueryException e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.Query_Error);
+    } catch (Exception e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.General_Error);
+    }
+  }
+
+  private static boolean isOrderCAccesible() {
+    return Order__c.SObjectType.getDescribe().isAccessible();
+  }
+
+  private static boolean isOrderCNotAccesible() {
+    return !isOrderCAccesible();
+  }
+
+  private static boolean isOrderCPaymentDueDateAccesible() {
+    return Order__c.Payment_Due_Date__c.getDescribe().isAccessible();
+  }
+
+  private static boolean isOrderCPaymentDueDateNotAccesible() {
+    return !isOrderCPaymentDueDateAccesible();
+  }
+
+  private static boolean isOrderCTotalAmountAccesible() {
+    return Order__c.Total_Amount__c.getDescribe().isAccessible();
+  }
+
+  private static boolean isOrderCTotalAmountNotAccesible() {
+    return !isOrderCTotalAmountAccesible();
+  }
+
+  @testVisible
+  private static List<PicklistValue> createMonthPicklistValues(
+    List<Order__c> orders
+  ) {
+    Set<Integer> months = new Set<Integer>();
+    for (Order__c ord : orders) {
+      if (ord.Payment_Due_Date__c != null) {
+        months.add(ord.Payment_Due_Date__c.month());
+      }
+    }
+
+    List<PicklistValue> pickListValues = new List<PicklistValue>();
+    for (Integer month : months) {
+      String monthLabel = DateUtils.getMonthName(month);
+      String monthValue = String.valueOf(month);
+      pickListValues.add(new PicklistValue(monthLabel, monthValue));
+    }
+    return pickListValues;
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static List<Order__c> getOrdersForAccountAndDueDateMonth(
+    Id accountId,
+    String dueDateMonth
+  ) {
+    try {
+      if (
+        isOrderCNotAccesible() ||
+        isOrderCPaymentDueDateNotAccesible() ||
+        isOrderCTotalAmountNotAccesible()
+      ) {
+        // TODO Log: e.getMessage()+getStack()
+        throw new InsufficientPermissionException(
+          Label.Insufficient_Premissions
+        );
+      }
+
+      List<Order__c> orders = new List<Order__c>();
+      if (accountId == null || String.isBlank(dueDateMonth)) {
+        return orders;
+      }
+      Integer month = Integer.valueOf(dueDateMonth);
+
+      List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
+
+      orders = [
+        SELECT Id, Name, Payment_Due_Date__c, Total_Amount__c
+        FROM Order__c
+        WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
+        ORDER BY Payment_Due_Date__c ASC
+        LIMIT 1000
+      ];
+
+      for (Order__c ord : orders) {
+        if (ord.Payment_Due_Date__c.month() == month) {
+          ordersWithDueDateMonth.add(ord);
         }
+      }
+      return ordersWithDueDateMonth;
+    } catch (QueryException e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.Query_Error);
+    } catch (Exception e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.General_Error);
     }
-
-    @AuraEnabled(cacheable=true)
-    public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
-        try { 
-            if (isAccountTotalOrdersNumberNotAccesible()) {
-                // TODO Log: e.getMessage()+getStack() 
-                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
-            }
-
-            List<PicklistValue> pickListValues = new List<PicklistValue>();
-            for (Account acc : [
-                SELECT Name, Total_Orders_Number__c
-                FROM Account
-                WHERE Total_Orders_Number__c > 0
-                ORDER BY Name
-                LIMIT 1000
-           ]) {
-                pickListValues.add(new PicklistValue(acc.Name, String.valueOf(acc.Id)));
-            }
-            return pickListValues;
-        } catch (QueryException e) { 
-            // TODO Log: e.getMessage()+getStack() 
-            throw new AuraHandledException( Label.Query_Error ); 
-        } catch (Exception e) {
-            // TODO Log: e.getMessage()+getStack() 
-            throw new AuraHandledException( Label.General_Error ); 
-        }
-    }
-
-    private static boolean isAccountTotalOrdersNumberAccesible() {
-        return Account.Total_Orders_Number__c.getDescribe().isAccessible();
-    }
-
-    private static boolean isAccountTotalOrdersNumberNotAccesible() {
-        return !isAccountTotalOrdersNumberAccesible();
-    }
-
-    @AuraEnabled(cacheable=true)
-    public static List<PicklistValue> getPaymentDueDateMonthsForAccountPicklistValues(
-        Id accountId
-    ) {
-        try {
-            if (isOrderCNotAccesible() || isOrderCPaymentDueDateNotAccesible() ) {
-            // TODO Log: e.getMessage()+getStack() 
-                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
-            }
-            
-            List<Order__c> orders = [
-                SELECT Payment_Due_Date__c
-                FROM Order__c
-                WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
-                ORDER BY Payment_Due_Date__c ASC
-                LIMIT 1000
-            ]; 
-            return createMonthPicklistValues(orders);
-        } catch (QueryException e) { 
-            // TODO Log: e.getMessage()+getStack() 
-            throw new AuraHandledException( Label.Query_Error );  
-        } catch (Exception e) {
-             // TODO Log: e.getMessage()+getStack() 
-           throw new AuraHandledException( Label.General_Error ); 
-        }
-    }
-
-    private static boolean isOrderCAccesible() {
-        return Order__c.SObjectType.getDescribe().isAccessible();
-    }
-
-    private static boolean isOrderCNotAccesible() {
-        return !isOrderCAccesible();
-    }
-
-    private static boolean isOrderCPaymentDueDateAccesible() {
-        return Order__c.Payment_Due_Date__c.getDescribe().isAccessible();
-    }
-
-    private static boolean isOrderCPaymentDueDateNotAccesible() {
-        return !isOrderCPaymentDueDateAccesible();
-    }
-    
-    private static boolean isOrderCTotalAmountAccesible() {
-        return Order__c.Total_Amount__c.getDescribe().isAccessible();
-    }
-
-    private static boolean isOrderCTotalAmountNotAccesible() {
-        return !isOrderCTotalAmountAccesible();
-    }
-   
-    @testVisible
-    private static List<PicklistValue> createMonthPicklistValues(
-        List<Order__c> orders
-    ) {
-        Set<Integer> months = new Set<Integer>();
-        for (Order__c ord : orders) {
-            if (ord.Payment_Due_Date__c != null) {
-                months.add(ord.Payment_Due_Date__c.month());
-            }
-        }
-
-        List<PicklistValue> pickListValues = new List<PicklistValue>();
-        for (Integer month : months) {
-            String monthLabel = DateUtils.getMonthName(month);
-            String monthValue = String.valueOf(month);
-            pickListValues.add(new PicklistValue(monthLabel, monthValue));
-        }
-        return pickListValues;
-    }
-
-    @AuraEnabled(cacheable=true)
-    public static List<Order__c> getOrdersForAccountAndDueDateMonth(
-        Id accountId,
-        String dueDateMonth
-    ) {
-        try {
-            if (isOrderCNotAccesible() ||
-                isOrderCPaymentDueDateNotAccesible() ||
-                isOrderCTotalAmountNotAccesible() ) {
-                // TODO Log: e.getMessage()+getStack() 
-                throw new InsufficientPermissionException( Label.Insufficient_Premissions );
-            }
-
-            List<Order__c> orders = new List<Order__c>();
-            if (accountId == null || String.isBlank(dueDateMonth)) {
-                return orders;
-            }
-            Integer month = Integer.valueOf(dueDateMonth);
-
-            List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
-
-            orders = [
-                SELECT Id, Name, Payment_Due_Date__c, Total_Amount__c
-                FROM Order__c
-                WHERE Account__c = :accountId AND Payment_Due_Date__c != NULL
-                ORDER BY Payment_Due_Date__c ASC
-                LIMIT 1000
-            ];
-
-            for (Order__c ord : orders) {
-                if (ord.Payment_Due_Date__c.month() == month) {
-                    ordersWithDueDateMonth.add(ord);
-                }
-            }
-            return ordersWithDueDateMonth;
-        } catch (QueryException e) { 
-            // TODO Log: e.getMessage()+getStack() 
-            throw new AuraHandledException( Label.Query_Error ); 
-        } catch (Exception e) {
-            // TODO Log: e.getMessage()+getStack() 
-            throw new AuraHandledException( Label.General_Error ); 
-        }
-    }
-
+  }
 }

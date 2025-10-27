@@ -8,7 +8,39 @@ private class DateUtilsTest {
 
   @isTest
   static void getMonthName_shouldReturnEmptyString_forInvalidMonthNumber() {
-    System.assertEquals('', DateUtils.getMonthName(0)); 
+    System.assertEquals('', DateUtils.getMonthName(0));
     System.assertEquals('', DateUtils.getMonthName(13));
+  }
+
+  @IsTest
+  static void getYearMonthString_shouldReturnLeadingZero_forMarch() {
+    // Given
+    Date testDate = Date.newInstance(2025, 3, 15); // marzec 2025
+
+    // When
+    String result = DateUtils.getYearMonthString(testDate);
+
+    // Then
+    System.assertEquals(
+      '2025-03',
+      result,
+      'Should return year and two-digit month (03) for March'
+    );
+  }
+
+  @IsTest
+  static void getYearMonthString_shouldReturnTwoDigitMonth_forNovember() {
+    // Given
+    Date testDate = Date.newInstance(2025, 11, 5); // listopad 2025
+
+    // When
+    String result = DateUtils.getYearMonthString(testDate);
+
+    // Then
+    System.assertEquals(
+      '2025-11',
+      result,
+      'Should return year and two-digit month (11) for November'
+    );
   }
 }

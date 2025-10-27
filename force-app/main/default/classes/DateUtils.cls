@@ -19,4 +19,11 @@ public with sharing class DateUtils {
     }
     return '';
   }
+
+  public static String getYearMonthString(Date dateToConvert) {
+    Integer year = dateToConvert.year();
+    Integer month = dateToConvert.month();
+    // TODO return String.valueOf(year)+ '-' + String.format('%02d', month);
+    return String.valueOf(year) + '-' + String.valueOf(month).leftPad(2, '0');
+  }
 }

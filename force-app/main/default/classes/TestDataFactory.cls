@@ -3,36 +3,38 @@ public with sharing class TestDataFactory {
   public final static Integer ACCOUNTS_NUMBER = 5;
   public final static Integer ORDERS_PER_ACCOUNT = 8;
   public static Integer[] ordersPerAccount = prepareEvenlyOrdersPerAccount();
-  
+
+  public static final String TEST_USER_WITHOUT_PERMISSIONS_ALIAS = 'testuden';
+  public static final String TEST_USER_WITH_PERMISSIONS_ALIAS = 'testuacc';
+
+  public final static Integer[] FIXED_MONTHS = new List<Integer>{
+    1,
+    2,
+    4,
+    8,
+    9
+  };
+
+  private final static List<Account> accs = new List<Account>();
+
   private static List<Integer> prepareEvenlyOrdersPerAccount() {
     List<Integer> targetList = new List<Integer>();
     for (Integer i = 0; i < ACCOUNTS_NUMBER; i++) {
-        targetList.add(ORDERS_PER_ACCOUNT);
+      targetList.add(ORDERS_PER_ACCOUNT);
     }
     return targetList;
   }
 
-  public final static Integer[] FIXED_MONTHS = new List<Integer>{ 1, 2, 4, 8, 9 };
-  
-  public static List<Account> createAccountsWithOrders() {
-    List<Account> accs = createAccounts(ACCOUNTS_NUMBER);
-    List<Order__c> ords = createOrders(accs, ordersPerAccount);
-    accs = [
-      SELECT Name, Total_Orders_Number__c
-      FROM Account
-      WHERE Id IN :accs
-      ORDER BY Name
-    ];
-    return accs;
+  public static void createAccountsWithOrders() {
+    createAccounts(ACCOUNTS_NUMBER);
+    createOrders(accs, ordersPerAccount);
   }
 
-  private static List<Account> createAccounts(Integer howMany) {
-    List<Account> accs = new List<Account>();
+  private static void createAccounts(Integer howMany) {
     for (Integer accNr = 1; accNr <= howMany; accNr++) {
       accs.add(new Account(Name = createAccountName(accNr)));
     }
     insert accs;
-    return accs;
   }
 
   @testVisible
@@ -40,7 +42,7 @@ public with sharing class TestDataFactory {
     return 'Test Account ' + accNr;
   }
 
-  private static List<Order__c> createOrders(
+  private static void createOrders(
     List<Account> accs,
     Integer[] ordersPerAccount
   ) {
@@ -55,7 +57,6 @@ public with sharing class TestDataFactory {
       }
     }
     insert ords;
-    return ords;
   }
 
   public static String createOrderNameForAccount(
@@ -74,19 +75,102 @@ public with sharing class TestDataFactory {
       Account__c = acc.Id,
       Name = orderName,
       Total_Amount__c = totalAmount,
-      Payment_Due_Date__c = TestDateHelper.getNextFixedMonthTestDate(FIXED_MONTHS)
+      Payment_Due_Date__c = TestDateHelper.getNextFixedMonthTestDate(
+        FIXED_MONTHS
+      )
     );
     return ord;
   }
 
-  public static Integer getTestMonth(
-    Integer accountNr, 
-    Integer orderNr
-    ) {
+  public static List<Account> getAccountsWithOrders() {
+    return [
+      SELECT Name, Total_Orders_Number__c
+      FROM Account
+      WHERE Id IN :accs
+      ORDER BY Name
+    ];
+  }
+
+  public static Integer getTestMonth(Integer accountNr, Integer orderNr) {
     return TestDateHelper.getTestMonth(
-      ORDERS_PER_ACCOUNT, 
-      FIXED_MONTHS, 
-      accountNr, 
-      orderNr);
+      ORDERS_PER_ACCOUNT,
+      FIXED_MONTHS,
+      accountNr,
+      orderNr
+    );
+  }
+
+  public static void createUsers() {
+    createUserWithoutPermissions();
+    createUserWithPermissions();
+  }
+
+  private static void createUserWithoutPermissions() {
+    Profile standardUserProfile = [
+      SELECT Id
+      FROM Profile
+      WHERE Name = 'Standard User'
+      LIMIT 1
+    ];
+    User u = new User(
+      ProfileId = standardUserProfile.Id,
+      Email = 'testuser' + System.currentTimeMillis() + '@example.com',
+      EmailEncodingKey = 'UTF-8',
+      LastName = 'Test',
+      LanguageLocaleKey = 'en_US',
+      LocaleSidKey = 'en_US',
+      TimeZoneSidKey = 'America/Los_Angeles',
+      UserName = 'testuser' + System.currentTimeMillis() + '@example.com',
+      Alias = TEST_USER_WITHOUT_PERMISSIONS_ALIAS
+    );
+    insert u;
+  }
+
+  private static void createUserWithPermissions() {
+    Profile standardUserProfile = [
+      SELECT Id
+      FROM Profile
+      WHERE Name = 'Standard User'
+      LIMIT 1
+    ];
+    User u = new User(
+      ProfileId = standardUserProfile.Id,
+      Email = 'testuser' + System.currentTimeMillis() + '@example.com',
+      EmailEncodingKey = 'UTF-8',
+      LastName = 'Test',
+      LanguageLocaleKey = 'en_US',
+      LocaleSidKey = 'en_US',
+      TimeZoneSidKey = 'America/Los_Angeles',
+      UserName = 'testuser' + System.currentTimeMillis() + '@example.com',
+      Alias = TEST_USER_WITH_PERMISSIONS_ALIAS
+    );
+
+    insert u;
+
+    PermissionSetGroup psg = [
+      SELECT Id
+      FROM PermissionSetGroup
+      WHERE DeveloperName = 'Order_Operators'
+      LIMIT 1
+    ];
+
+    PermissionSetAssignment psa = new PermissionSetAssignment(
+      AssigneeId = u.Id,
+      PermissionSetGroupId = psg.Id
+    );
+
+    insert psa;
+  }
+
+  public static User getUserWithoutPermissions() {
+    return getUserByAlias(TEST_USER_WITHOUT_PERMISSIONS_ALIAS);
+  }
+
+  public static User getUserWithPermissions() {
+    return getUserByAlias(TEST_USER_WITH_PERMISSIONS_ALIAS);
+  }
+
+  private static User getUserByAlias(String alias) {
+    return [SELECT Id, Alias FROM User WHERE Alias = :alias LIMIT 1];
   }
 }
