@@ -145,10 +145,10 @@ private class OrderCControllerTest {
     );
 
     System.assertEquals(2, result.size());
-    System.assertEquals('January', result[0].label);
-    System.assertEquals('1', result[0].value);
-    System.assertEquals('February', result[1].label);
-    System.assertEquals('2', result[1].value);
+    System.assertEquals('2023-01', result[0].label);
+    System.assertEquals('2023-01', result[0].value);
+    System.assertEquals('2023-02', result[1].label);
+    System.assertEquals('2023-02', result[1].value);
   }
 
   @isTest
@@ -174,12 +174,12 @@ private class OrderCControllerTest {
     List<Account> testAccounts = TestDataFactory.getAccountsWithOrders();
 
     final Integer ACCOUNT_NR = 2;
-    final String MONTH_NR = '9';
+    final String YEAR_MONTH = DateUtils.getYearMonthString(2025, 9);
 
     Test.startTest();
     List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
       testAccounts[ACCOUNT_NR].Id,
-      MONTH_NR
+      YEAR_MONTH
     );
     Test.stopTest();
 
@@ -190,8 +190,8 @@ private class OrderCControllerTest {
     );
 
     System.assertEquals(
-      Integer.valueOf(MONTH_NR),
-      results[0].Payment_Due_Date__c.month()
+      YEAR_MONTH,
+      DateUtils.getYearMonthString(results[0].Payment_Due_Date__c)
     );
   }
 
@@ -202,12 +202,12 @@ private class OrderCControllerTest {
     List<Account> testAccounts = TestDataFactory.getAccountsWithOrders();
 
     final Integer ACCOUNT_NR = 1;
-    final String MONTH_NR = '1';
+    final String YEAR_MONTH = DateUtils.getYearMonthString(2025, 1);
 
     Test.startTest();
     List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
       testAccounts[ACCOUNT_NR].Id,
-      MONTH_NR
+      YEAR_MONTH
     );
     Test.stopTest();
 
@@ -218,13 +218,13 @@ private class OrderCControllerTest {
     );
 
     System.assertEquals(
-      Integer.valueOf(MONTH_NR),
-      results[0].Payment_Due_Date__c.month()
+      YEAR_MONTH,
+      DateUtils.getYearMonthString(results[0].Payment_Due_Date__c)
     );
 
     System.assertEquals(
-      Integer.valueOf(MONTH_NR),
-      results[1].Payment_Due_Date__c.month()
+      YEAR_MONTH,
+      DateUtils.getYearMonthString(results[1].Payment_Due_Date__c)
     );
   }
 
@@ -234,12 +234,12 @@ private class OrderCControllerTest {
 
     List<Account> testAccounts = TestDataFactory.getAccountsWithOrders();
 
-    final String MONTH_NR = '3';
+    final String YEAR_MONTH = DateUtils.getYearMonthString(2025, 3);
 
     Test.startTest();
     List<Order__c> results = OrderCController.getOrdersForAccountAndDueDateMonth(
       testAccounts[2].Id,
-      MONTH_NR
+      YEAR_MONTH
     );
     Test.stopTest();
 
@@ -251,7 +251,7 @@ private class OrderCControllerTest {
     User testUserWithoutPermissions = TestDataFactory.getUserWithoutPermissions();
 
     final Id DUMMY_ACCOUNT_ID = getDummyAccountId();
-    final String DUMMY_MONTH_NR = '0';
+    final String DUMMY_YEAR_MONTH = DateUtils.getYearMonthString(2025, 0);
 
     System.runAs(testUserWithoutPermissions) {
       Boolean exceptionCaught = false;
@@ -260,7 +260,7 @@ private class OrderCControllerTest {
       try {
         OrderCController.getOrdersForAccountAndDueDateMonth(
           DUMMY_ACCOUNT_ID,
-          DUMMY_MONTH_NR
+          DUMMY_YEAR_MONTH
         );
       } catch (AuraHandledException e) {
         System.assertEquals('Script-thrown exception', e.getMessage());
@@ -281,7 +281,7 @@ private class OrderCControllerTest {
     User userWithPermissions = TestDataFactory.getUserWithPermissions();
 
     final Id DUMMY_ACCOUNT_ID = getDummyAccountId();
-    final String DUMMY_MONTH_NR = '0';
+    final String DUMMY_YEAR_MONTH = DateUtils.getYearMonthString(2025, 0);
 
     System.runAs(userWithPermissions) {
       Boolean exceptionNotCaught = true;
@@ -290,7 +290,7 @@ private class OrderCControllerTest {
       try {
         OrderCController.getOrdersForAccountAndDueDateMonth(
           DUMMY_ACCOUNT_ID,
-          DUMMY_MONTH_NR
+          DUMMY_YEAR_MONTH
         );
       } catch (AuraHandledException e) {
         System.assertEquals('Script-thrown exception', e.getMessage());
@@ -300,7 +300,7 @@ private class OrderCControllerTest {
       }
       Test.stopTest();
 
-      System.assert(exceptionNotCaught, 'No AuraHandledException thrown');
+      System.assert(exceptionNotCaught, 'AuraHandledException thrown');
     }
   }
 }

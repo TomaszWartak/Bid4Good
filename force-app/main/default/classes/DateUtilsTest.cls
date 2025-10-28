@@ -43,4 +43,44 @@ private class DateUtilsTest {
       'Should return year and two-digit month (11) for November'
     );
   }
+
+  @IsTest
+  static void getYearIntFromYearMonthString_shouldReturnCorrectYear() {
+    // given
+    String ym = '2025-10';
+
+    // when
+    Integer result = DateUtils.getYearIntFromYearMonthString(ym);
+
+    // then
+    System.assertEquals(2025, result, 'Should correctly extract the year part');
+  }
+
+  @IsTest
+  static void getMonthIntFromYearMonthString_shouldReturnCorrectMonth() {
+    // given
+    String ym = '2025-10';
+
+    // when
+    Integer result = DateUtils.getMonthIntFromYearMonthString(ym);
+
+    // then
+    System.assertEquals(10, result, 'Should correctly extract the month part');
+  }
+
+  @IsTest
+  static void getMonthIntFromYearMonthString_shouldHandleLeadingZero() {
+    // given
+    String ym = '2024-03';
+
+    // when
+    Integer result = DateUtils.getMonthIntFromYearMonthString(ym);
+
+    // then
+    System.assertEquals(
+      3,
+      result,
+      'Should correctly parse month with leading zero'
+    );
+  }
 }

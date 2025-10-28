@@ -111,6 +111,26 @@ public with sharing class OrderCController {
   private static List<PicklistValue> createMonthPicklistValues(
     List<Order__c> orders
   ) {
+    Set<String> months = new Set<String>();
+    for (Order__c ord : orders) {
+      if (ord.Payment_Due_Date__c != null) {
+        months.add(DateUtils.getYearMonthString(ord.Payment_Due_Date__c));
+      }
+    }
+
+    List<PicklistValue> pickListValues = new List<PicklistValue>();
+    for (String month : months) {
+      String monthLabel = month;
+      String monthValue = month;
+      pickListValues.add(new PicklistValue(monthLabel, monthValue));
+    }
+    return pickListValues;
+  }
+
+  @testVisible
+  private static List<PicklistValue> createMonthPicklistValues2(
+    List<Order__c> orders
+  ) {
     Set<Integer> months = new Set<Integer>();
     for (Order__c ord : orders) {
       if (ord.Payment_Due_Date__c != null) {
@@ -130,7 +150,7 @@ public with sharing class OrderCController {
   @AuraEnabled(cacheable=true)
   public static List<Order__c> getOrdersForAccountAndDueDateMonth(
     Id accountId,
-    String dueDateMonth
+    String dueDateYearMonth
   ) {
     try {
       if (
@@ -145,10 +165,9 @@ public with sharing class OrderCController {
       }
 
       List<Order__c> orders = new List<Order__c>();
-      if (accountId == null || String.isBlank(dueDateMonth)) {
+      if (accountId == null || String.isBlank(dueDateYearMonth)) {
         return orders;
       }
-      Integer month = Integer.valueOf(dueDateMonth);
 
       List<Order__c> ordersWithDueDateMonth = new List<Order__c>();
 
@@ -160,8 +179,18 @@ public with sharing class OrderCController {
         LIMIT 1000
       ];
 
+      // TODO
+      System.debug(dueDateYearMonth);
+      Integer year = DateUtils.getYearIntFromYearMonthString(dueDateYearMonth);
+      Integer month = DateUtils.getMonthIntFromYearMonthString(
+        dueDateYearMonth
+      );
+
       for (Order__c ord : orders) {
-        if (ord.Payment_Due_Date__c.month() == month) {
+        if (
+          (ord.Payment_Due_Date__c.year() == year) &&
+          (ord.Payment_Due_Date__c.month() == month)
+        ) {
           ordersWithDueDateMonth.add(ord);
         }
       }
@@ -171,6 +200,10 @@ public with sharing class OrderCController {
       throw new AuraHandledException(Label.Query_Error);
     } catch (Exception e) {
       // TODO Log: e.getMessage()+getStack()
+      // TODO
+      System.debug(
+        'Error: ' + e.getMessage() + +'\n' + e.getStackTraceString()
+      );
       throw new AuraHandledException(Label.General_Error);
     }
   }
