@@ -16,8 +16,15 @@ public with sharing class OrderCController {
   public static List<PicklistValue> getAccountsWithOrdersPicklistValues() {
     try {
       if (isAccountTotalOrdersNumberNotAccesible()) {
+        // TODO
+        System.debug(
+          'getAccountsWithOrdersPicklistValues' +
+            '\n' +
+            'Insufficient Permissions on Account.Total_Orders_Number__c'
+        );
         // TODO Log: e.getMessage()+getStack()
         throw new InsufficientPermissionException(
+          // TODO throw new AuraHandledException(
           Label.Insufficient_Premissions
         );
       }
@@ -33,6 +40,9 @@ public with sharing class OrderCController {
         pickListValues.add(new PicklistValue(acc.Name, String.valueOf(acc.Id)));
       }
       return pickListValues;
+    } catch (InsufficientPermissionException e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.Insufficient_Premissions);
     } catch (QueryException e) {
       // TODO Log: e.getMessage()+getStack()
       throw new AuraHandledException(Label.Query_Error);
@@ -60,11 +70,20 @@ public with sharing class OrderCController {
   ) {
     try {
       if (isOrderCNotAccesible() || isOrderCPaymentDueDateNotAccesible()) {
+        // TODO
+        System.debug(
+          'getPaymentDueDateMonthsForAccountPicklistValues' +
+            '\n' +
+            'Insufficient Permissions on Order__c'
+        );
         // TODO Log: e.getMessage()+getStack()
         throw new InsufficientPermissionException(
+          // TODO throw new AuraHandledException(
           Label.Insufficient_Premissions
         );
       }
+      // TODO
+      System.debug('Account ID: ' + accountId);
 
       List<Order__c> orders = [
         SELECT Payment_Due_Date__c
@@ -74,6 +93,9 @@ public with sharing class OrderCController {
         LIMIT 1000
       ];
       return createMonthPicklistValues(orders);
+    } catch (InsufficientPermissionException e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.Insufficient_Premissions);
     } catch (QueryException e) {
       // TODO Log: e.getMessage()+getStack()
       throw new AuraHandledException(Label.Query_Error);
@@ -127,6 +149,7 @@ public with sharing class OrderCController {
     return pickListValues;
   }
 
+  // TODO remove if unused
   @testVisible
   private static List<PicklistValue> createMonthPicklistValues2(
     List<Order__c> orders
@@ -158,8 +181,15 @@ public with sharing class OrderCController {
         isOrderCPaymentDueDateNotAccesible() ||
         isOrderCTotalAmountNotAccesible()
       ) {
+        // TODO
+        System.debug(
+          'getOrdersForAccountAndDueDateMonth' +
+            '\n' +
+            'Insufficient Permissions on Order__c'
+        );
         // TODO Log: e.getMessage()+getStack()
         throw new InsufficientPermissionException(
+          // TODO throw new AuraHandledException(
           Label.Insufficient_Premissions
         );
       }
@@ -195,15 +225,16 @@ public with sharing class OrderCController {
         }
       }
       return ordersWithDueDateMonth;
+    } catch (InsufficientPermissionException e) {
+      // TODO Log: e.getMessage()+getStack()
+      throw new AuraHandledException(Label.Insufficient_Premissions);
     } catch (QueryException e) {
       // TODO Log: e.getMessage()+getStack()
       throw new AuraHandledException(Label.Query_Error);
     } catch (Exception e) {
       // TODO Log: e.getMessage()+getStack()
       // TODO
-      System.debug(
-        'Error: ' + e.getMessage() + +'\n' + e.getStackTraceString()
-      );
+      System.debug('Error: ' + e.getMessage() + '\n' + e.getStackTraceString());
       throw new AuraHandledException(Label.General_Error);
     }
   }
