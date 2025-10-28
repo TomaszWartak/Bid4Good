@@ -134,7 +134,22 @@ export default class OrderExplorer extends LightningElement {
     // TODO
     console.log("refreshAccounts()");
 
-    refreshApex(this._wiredAccountsPicklistValuesResult);
+    refreshApex(this._wiredAccountsPicklistValuesResult)
+      .then(() => {
+        // TODO
+        console.log("Accounts refreshed.");
+
+        const accName = this.selectedAccountName ?? "";
+        this.orders = (this.orders || []).map((o) => ({
+          ...o,
+          accountName: accName
+        }));
+        // TODO
+        console.log("Orders re-mapped with refreshed account name.");
+      })
+      .catch((error) => {
+        this.handleError(error);
+      });
   }
 
   _wiredMonthsDueDatePicklistValuesResult;
