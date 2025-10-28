@@ -52,6 +52,11 @@ export default class OrderExplorer extends LightningElement {
   @track selectedMonth;
   handleMonthsDueDateChange(event) {
     this.selectedMonth = event.target.value;
+    // TODO
+    console.log(
+      "handleMonthsDueDateChange() -> selectedMonth: ",
+      this.selectedMonth
+    );
     this.refreshOrders();
   }
 
@@ -172,7 +177,7 @@ export default class OrderExplorer extends LightningElement {
   _wiredOrdersResult;
   @wire(getOrdersForAccountAndDueDateMonth, {
     accountId: "$selectedAccountId",
-    dueDateMonth: "$selectedMonth"
+    dueDateYearMonth: "$selectedMonth"
   })
   wiredOrders(result) {
     // TODO
@@ -206,7 +211,8 @@ export default class OrderExplorer extends LightningElement {
       this.orders = [];
       return;
     }
-
+    // TODO
+    console.log("refreshOrders() -> selectedMonth: ", this.selectedMonth);
     this._areOrdersLoading = true;
 
     refreshApex(this._wiredOrdersResult).finally(() => {

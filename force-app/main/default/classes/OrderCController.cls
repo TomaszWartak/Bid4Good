@@ -176,6 +176,10 @@ public with sharing class OrderCController {
     String dueDateYearMonth
   ) {
     try {
+      // TODO
+      System.debug('accountId: ' + accountId);
+      System.debug('dueDateYearMonth :' + dueDateYearMonth);
+
       if (
         isOrderCNotAccesible() ||
         isOrderCPaymentDueDateNotAccesible() ||
@@ -209,8 +213,6 @@ public with sharing class OrderCController {
         LIMIT 1000
       ];
 
-      // TODO
-      System.debug(dueDateYearMonth);
       Integer year = DateUtils.getYearIntFromYearMonthString(dueDateYearMonth);
       Integer month = DateUtils.getMonthIntFromYearMonthString(
         dueDateYearMonth
