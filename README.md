@@ -72,6 +72,7 @@ The application allows users to explore and monitor **customer orders** directly
 
 - Left console.log() in JavaScript.
 - Left system.debug() in Apex.
+- Left TODO cooments.
 
 If you have any other comments about bad practices, please contact me.
 
