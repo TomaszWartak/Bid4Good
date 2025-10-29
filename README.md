@@ -1,5 +1,7 @@
 # Bid4Good — Salesforce Order Management App
 
+## Overview
+
 **Bid4Good** is a Salesforce learning and portfolio project that demonstrates how to design, develop, and test a complete business process in the Salesforce platform — from data model and Apex backend, through Lightning Web Components (LWC), to automation with Flow and Change Data Capture (CDC).
 
 ---
